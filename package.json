@@ -1,0 +1,12 @@
+{
+  "name": "linkus",
+  "version": "1.0.0",
+  "description": "",
+  "main": "linkus.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "google-closure-compiler": "^20180610.0.2",
+    "resolve": "^1.12.0"
+  }
+}
