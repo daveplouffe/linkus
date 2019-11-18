@@ -80,10 +80,10 @@ let dependency = function () {
 
   function diff(arA, arB) {
     let diff = [];
-    arA.forEach(function (a) {
-      if (!arB[a.ino])
-        diff.push(a);
-    });
+    for (let m in arA) {
+      if (!arB[m])
+        diff.push(m);
+    }
     return diff;
   }
 
@@ -116,8 +116,8 @@ let dependency = function () {
     },
 
     hasSameDependencies(dependencies1, dependencies2) {
-      let dif = diff(dependencies1, dependencies2);
-      dif.concat(diff(dependencies2, dependencies1));
+      let dif = diff(dependencies1, dependencies2)
+        .concat(diff(dependencies2, dependencies1));
       return dif.length <= 0;
     }
   }
