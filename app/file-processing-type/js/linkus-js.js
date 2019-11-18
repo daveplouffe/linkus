@@ -117,7 +117,7 @@ function saveCodeChanged(linkus, changed) {
     console.log('updating \x1b[32m' + fileInfo.fileName + fileInfo.extension + '\x1b[0m');
     let oldBytes = fileInfo.bytes;
     let content = outputMaker.formatFileContent(linkus, fileInfo);
-    linkus.cached.saveFile(fileInfo.ino, content);
+    //linkus.cached.saveFile(fileInfo.ino, content);
     let stats = fs.statSync(fileInfo.file);
     fileInfo.mtime = stats.mtime;
     hotSwap(linkus, fileInfo, content, oldBytes);
