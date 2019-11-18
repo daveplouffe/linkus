@@ -3,7 +3,7 @@ const Utils = require('../helpers/utils');
 
 let DependencyCached = function (linkus) {
 
-  let cachedir = linkus.context.outputParts.path + '/linkus_cached/';
+  let cachedir = linkus.context.outputParts.path + '/linkus_cache/';
   let dependencyCachedFile = linkus.context.outputParts.fileName + '_cached.json';
   Utils.createFolders(cachedir);
   let loaded = [];
