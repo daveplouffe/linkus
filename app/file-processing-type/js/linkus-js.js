@@ -9,34 +9,6 @@ const dependency = require('../../core/dependency');
 const FileMapping = require('../../core/FileMapping');
 const OutputMaker = require('../../core/output-maker');
 
-/*
- {
-compile: args.compile,
-isDebug: args.compileDebug,
-compilationLevel: args.compilationLevel}
-)
- */
-eventbus.on(LinkusEvent.onCompile, function (linkus) {
-  if (linkus.context.entry.extension === '.js' && linkus.props.compile.enabled) {
-    let file = Utils.breakFullPathFile(linkus.context.output);
-    let outputFile = file.path + file.fileName + '.min' + file.extension;
-    ClosureCompiler.compile({
-      process_common_js_modules: linkus.props.compile.process_common_js_modules,
-      module_resolution: linkus.props.compile.module_resolution,
-      formatting: '',
-      js: linkus.context.output,
-      compilation_level: linkus.props.compile.compilationLevel,
-      js_output_file: outputFile,
-      create_source_map: outputFile + '.map',
-      debug: linkus.props.compile.isDebugMode
-    });
-  }
-});
-
-
-// -------------------------------------------------
-
-
 eventbus.on(LinkusEvent.onResolve, function (linkus) {
   if (linkus.context.entry.extension === '.js') {
     let state = checkFileState(linkus);
@@ -153,3 +125,33 @@ eventbus.on(LinkusEvent.onMakeOutput, function (linkus) {
     linkus.cached.saveDependencies(linkus.context.dependencyOrder);
   }
 });
+
+
+// -------------------------------------------------
+
+
+/*
+ {
+compile: args.compile,
+isDebug: args.compileDebug,
+compilationLevel: args.compilationLevel}
+)
+ */
+eventbus.on(LinkusEvent.onCompile, function (linkus) {
+  if (linkus.context.entry.extension === '.js' && linkus.props.compile.enabled) {
+    let file = Utils.breakFullPathFile(linkus.context.output);
+    let outputFile = file.path + file.fileName + '.min' + file.extension;
+    ClosureCompiler.compile({
+      process_common_js_modules: linkus.props.compile.process_common_js_modules,
+      module_resolution: linkus.props.compile.module_resolution,
+      formatting: '',
+      js: linkus.context.output,
+      compilation_level: linkus.props.compile.compilationLevel,
+      js_output_file: outputFile,
+      create_source_map: outputFile + '.map',
+      debug: linkus.props.compile.isDebugMode
+    });
+  }
+});
+
+
