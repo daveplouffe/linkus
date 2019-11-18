@@ -90,10 +90,10 @@ function isFileHasChanged(linkus) {
   if (notFound.length > 0 || importChanged.length > 0)
     status = 'major change';
   else if (codeChanged.length > 0) {
-    console.log('code change detected...');
+    console.log('\x1b[35m' + linkus.context.entry.fileName + linkus.context.entry.extension + '\x1b[0m: \x1b[32mcode change detected...\x1b[0m');
     status = 'minor change';
   } else {
-    console.log('no change detected...');
+    console.log('\x1b[35m' + linkus.context.entry.fileName + linkus.context.entry.extension + '\x1b[0m: no change detected...');
     status = 'nochange';
   }
 
@@ -114,7 +114,7 @@ function isImportHasChanged(fileinfo) {
 function saveCodeChanged(linkus, changed) {
   let outputMaker = OutputMaker.create();
   changed.codeChanged.forEach(function (fileInfo) {
-    console.log('updating ' + fileInfo.fileName + fileInfo.extension);
+    console.log('updating \x1b[32m' + fileInfo.fileName + fileInfo.extension + '\x1b[0m');
     let oldBytes = fileInfo.bytes;
     let content = outputMaker.formatFileContent(linkus, fileInfo);
     linkus.cached.saveFile(fileInfo.ino, content);
