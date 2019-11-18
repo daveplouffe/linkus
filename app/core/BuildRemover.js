@@ -4,9 +4,7 @@ let BuildRemover = function (directoryPath, nbrOfOldBuilds = 5) {
 
   function removeBuilds(match) {
     return getBuildFiles(match).then(function (buildFiles) {
-      //buildFiles.forEach((file) => console.log(file) );
       for (let i = 0; i < buildFiles.length - nbrOfOldBuilds; i++) {
-        //console.log(directoryPath+buildFiles[i]);
         fs.unlinkSync(directoryPath + buildFiles[i]);
       }
     });
