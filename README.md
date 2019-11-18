@@ -4,6 +4,7 @@
 
     let linkus = require('linkus/linkus');
   
+    let isProd = false;
     let builds = [];
 
     builds.push({
@@ -17,6 +18,7 @@
 
     linkus.create({
         basedir: __dirname,
+        oldBuildCount: 5,
         builds : builds,
         // fileMapping: {
         //     enabled: isProd,

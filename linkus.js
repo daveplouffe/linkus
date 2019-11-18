@@ -19,6 +19,7 @@ let Linkus = function (props) {
   that.props = {
     basedir: '',
     builds: [],
+    oldBuildCount: 5,
     removeConsole: false,
     fileMapping: {
       enabled: false,
@@ -57,6 +58,7 @@ let Linkus = function (props) {
 /**
  * @param {object} props
  * @param {string} props.basedir
+ * @param {number} props.oldBuildCount
  * @param {Array<{entry, output}>} props.builds
  * @param {Array} props.builds
  * @param {{enabled: boolean, files: Array}} props.fileMapping
