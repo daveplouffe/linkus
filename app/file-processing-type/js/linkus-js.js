@@ -39,7 +39,7 @@ eventbus.on(LinkusEvent.onCompile, function (linkus) {
 
 eventbus.on(LinkusEvent.onResolve, function (linkus) {
   if (linkus.context.entry.extension === '.js') {
-    let state = isFileHasChanged(linkus);
+    let state = checkFileState(linkus);
     switch (state.status) {
       case 'minor change':
         saveCodeChanged(linkus, state);
@@ -65,7 +65,7 @@ function getOrderedDependencies(linkus) {
   return dependency.resolveOrdered(imports);
 }
 
-function isFileHasChanged(linkus) {
+function checkFileState(linkus) {
   let cachedDependencies = linkus.cached.getDependencies();
   let N = cachedDependencies.length;
   if (N === 0 || !linkus.cached.isOutputfileExist()) return 'nobuild';
