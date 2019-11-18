@@ -36,7 +36,6 @@ Utils.inherit(OutputMaker, function () {
     let linkus = options.linkus;
     let dependencyOrder = options.dependencyOrder;
     let nbOfFiles = dependencyOrder.length;
-    let regexRemoveImports = outputMaker.props.regexImportRemover;
 
     // js import remover regex explication
     /* good to know that form

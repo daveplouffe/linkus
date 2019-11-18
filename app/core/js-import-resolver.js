@@ -39,13 +39,13 @@ JsImportResolver.prototype = function () {
     notAnalysedFileCounter = 0;
     notAnalysedFiles = [];
     fileAnalysed = [];
-    let fileAnalyse = getFileImports2(file);
+    let fileAnalyse = getFileImports(file);
     fileAnalysed[fileAnalyse.ino] = fileAnalyse;
     mergeNotAnalysed(fileAnalyse.imports);
     counterImports++;
     while (notAnalysedFileCounter !== 0) {
       let nextFileToAnalyse = Object.keys(notAnalysedFiles)[0];
-      fileAnalyse = getFileImports2(notAnalysedFiles[nextFileToAnalyse].file);
+      fileAnalyse = getFileImports(notAnalysedFiles[nextFileToAnalyse].file);
       notAnalysedFileCounter--;
       counterImports++;
       delete notAnalysedFiles[nextFileToAnalyse];
@@ -64,26 +64,7 @@ JsImportResolver.prototype = function () {
     }
   }
 
-  function getListOfImportsRecursive(aFile, listOfImports) {
-    recursiveCounter++;
-    if (recursiveCounter > maxRecursive) maxRecursive = recursiveCounter;
-    let importResult = getFileImports(aFile);
-    listOfImports = importResult;
-    let curfileImports = importResult.imports;
-    let N = curfileImports.length;
-    for (let i = 0; i < N; i++) {
-      let index = fileFound.indexOf(curfileImports[i].ino);
-      counterImports++;
-      if (index === -1) {
-        fileFound.push(curfileImports[i].ino);
-        curfileImports[i] = getListOfImportsRecursive(curfileImports[i].file, curfileImports[i]);
-      }
-    }
-    recursiveCounter--;
-    return listOfImports;
-  }
-
-  function getFileImports2(filePath) {
+  function getFileImports(filePath) {
     let fileListOfImports = [];
     let importCounter = 0;
     filePath = fs.realpathSync(filePath);
@@ -92,7 +73,6 @@ JsImportResolver.prototype = function () {
     let m;
     //let startTime = process.hrtime();
     while ((m = resolver.props.regexImports.exec(contents)) !== null) {
-      // This is necessary to avoid infinite loops with zero-width matches
       if (m.index === resolver.props.regexImports.lastIndex) {
         resolver.props.regexImports.lastIndex++;
       }
@@ -149,7 +129,7 @@ JsImportResolver.prototype = function () {
 
     getFileImports(file) {
       resolver = this;
-      return getFileImports2(file);
+      return getFileImports(file);
     }
   }
 }();
