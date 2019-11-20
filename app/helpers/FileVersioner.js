@@ -13,12 +13,19 @@ let FileVersioner = function (directoryPath) {
     });
   }
 
-  function applyVersion(match) {
-    return getFiles(match).then(function (results) {
+  /**
+   * @param regex
+   * @param {function(file:string, newFileName:string)} onAfterRename
+   * @returns {Promise}
+   */
+  function applyVersion(regex, onAfterRename = null ) {
+    return getFiles(regex).then(function (results) {
       for (let i = 0; i < results.length; i++) {
         let oldFile = directoryPath + results[i].file;
-        let newFile = directoryPath + getNewFileName(results[i]);
+        let newFileName =  getNewFileName(results[i]);
+        let newFile = directoryPath + newFileName;
         fs.renameSync(oldFile, newFile);
+        if(onAfterRename) onAfterRename(newFile, newFileName);
       }
     });
   }

@@ -2,6 +2,7 @@ const FileVersioner = require('./app/helpers/FileVersioner');
 const Utils = require('./app/helpers/utils');
 const path = require('path');
 const {execSync} = require('child_process');
+const fs = require('fs');
 
 /**
  * @param options.nbOfOldVersions
@@ -30,7 +31,21 @@ let SassLinker = function(options) {
   }
 
   function applyVersioning() {
-    return fileVersioner.applyVersion(context.regexVersioning);
+    return fileVersioner.applyVersion(context.regexVersioning, onAfterRenamingFile);
+  }
+
+  function onAfterRenamingFile(file, newFileName) {
+    if(file.search(/.css.map$/)!==-1) {
+      let refFile = newFileName.substring(0, newFileName.length-4);
+      let content = fs.readFileSync(file, 'utf8');
+      content = content.replace(/("file":")(.*)("})/, '$1'+refFile+'$3');
+      fs.writeFile(file, content, 'utf8', function(){});
+    } else if(file.search(/.css$/)!==-1) {
+      let refFile = newFileName+'.map';
+      let content = fs.readFileSync(file, 'utf8');
+      content = content.replace(/(\/\*# sourceMappingURL=)(.*)( \*\/)/, '$1'+refFile+'$3');
+      fs.writeFile(file, content, 'utf8', function(){});
+    }
   }
 
   function removeOldBuilds() {
