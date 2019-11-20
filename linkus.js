@@ -86,7 +86,7 @@ module.exports = Linkus;
 
 function startBuild(linkus) {
   console.log('');
-  console.log('start build on', new Date().toLocaleString());
+  console.log('Linkus start on', new Date().toLocaleString());
   linkus.startTime = process.hrtime();
   eventbus.emit(LinkusEvent.onBeforeBuild, linkus);
   for (let index = 0; index < linkus.props.builds.length; index++) {
