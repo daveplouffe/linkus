@@ -33,4 +33,26 @@
         },
     });
 
+# SassLinker
+### Exemple of use
+
+    const SassLinker = require('linkus/SassLinker');
+    
+    const inputdir = __dirname+'/../app/public/scss/';
+    const outputdir = __dirname+'/../assets/css/';
+    
+    let builds = [];
+    builds.push({
+      entry: inputdir+'/default.scss',
+      output: outputdir+'/default.$date$.css',
+      regexVersioning: /default.(\$date\$).css/,
+      regexRemoving: /default.*.css(?:.map)?$/
+    });
+    
+    
+    let sassLinker = new SassLinker({
+      builds,
+      nbOfOldVersions:2*2 // multiplied by 2 for .map file types
+    });
+    sassLinker.execute();
 
