@@ -1,4 +1,4 @@
-const BuildRemover = require('../core/BuildRemover');
+const FileVersioner = require('../helpers/FileVersioner');
 
 const buildRemoverCommand = {
   /**
@@ -7,9 +7,11 @@ const buildRemoverCommand = {
   execute(linkus) {
     let count = linkus.props.oldBuildCount || 1;
     if (count <= 0) count = 1;
-    let remover = new BuildRemover(linkus.context.outputParts.path, count);
     let name = linkus.context.outputParts.fileName;
-    remover.removeBuilds('^' + name + '.*' + linkus.context.outputParts.extension)
+    let directory = linkus.context.outputParts.path;
+    let fileVersioner = new FileVersioner(directory);
+    let regex = new RegExp('^' + name + '.*' + linkus.context.outputParts.extension);
+    fileVersioner.remove(regex, count);
   }
 };
 
