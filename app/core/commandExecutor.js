@@ -45,7 +45,7 @@ let commandExecutor = function () {
 
   function onBuildDone(linkus) {
     executeCommands(linkus, linkus.props.plugins.onBuildDone);
-    console.log('\nbuild timelasp:', Utils.getTimeDiffInSeconds(linkus.startTime), 'seconds');
+    console.log('build timelasp:', Utils.getTimeDiffInSeconds(linkus.startTime), 'seconds');
 
     if (linkus.props.enabled === false
       && linkus.context.entry === linkus.props.builds[linkus.props.builds.length - 1].entry) {

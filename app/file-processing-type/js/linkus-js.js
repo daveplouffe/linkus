@@ -11,7 +11,7 @@ const OutputMaker = require('../../core/output-maker');
 
 eventbus.on(LinkusEvent.onResolve, function (linkus) {
   if (linkus.context.entry.extension === '.js') {
-    process.stdout.write('\nlinking \x1b[35m' + linkus.context.entry.fileName + linkus.context.entry.extension + '\x1b[0m');
+    process.stdout.write('linking \x1b[35m' + linkus.context.entry.fileName + linkus.context.entry.extension + '\x1b[0m');
     let state = checkFileState(linkus);
     switch (state.status) {
       case 'minor change':
@@ -60,8 +60,9 @@ function checkFileState(linkus) {
     }
   }
   let status;
-  if (notFound.length > 0 || importChanged.length > 0)
+  if (notFound.length > 0 || importChanged.length > 0) {
     status = 'major change';
+  }
   else if (codeChanged.length > 0) {
     process.stdout.write(' ->\x1b[33m code change detected\x1b[0m');
     status = 'minor change';
@@ -69,7 +70,7 @@ function checkFileState(linkus) {
     process.stdout.write(' ->\x1b[32m no change detected\x1b[0m');
     status = 'nochange';
   }
-
+  process.stdout.write('\n');
   return {
     status,
     codeChanged,
