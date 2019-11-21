@@ -1,8 +1,8 @@
-const FileVersioner = require('./app/helpers/FileVersioner');
 const Utils = require('./app/helpers/utils');
 const path = require('path');
-const {execSync} = require('child_process');
 const fs = require('fs');
+const sass = require('sass');
+const FileVersioner = require('./app/helpers/FileVersioner');
 
 /**
  * @param options.nbOfOldVersions
@@ -10,46 +10,51 @@ const fs = require('fs');
  */
 let SassLinker = function(options) {
 
-  let fileVersioner;
-  let context;
+  let version = '.'+Utils.getBuildNumber();
 
   function execute() {
     console.log('SassLinker start on', new Date().toLocaleString());
     let startTime = process.hrtime();
-    options.builds.forEach(function(build) {
-      fileVersioner = new FileVersioner(path.dirname(build.output));
-      context = build;
-      console.log(' - linking \x1b[35m' + path.basename(build.entry) + '\x1b[0m');
-      executeSass(build.entry, build.output);
-      applyVersioning().then(removeOldBuilds);
-    });
+    options.builds.forEach(compile);
     console.log('build timelasp:', Utils.getTimeDiffInSeconds(startTime), 'seconds');
   }
 
-  function executeSass(inputScss, outputfile) {
-    execSync("sass --style=compressed " + inputScss + ':' + outputfile );
+  async function compile(build) {
+    return new Promise(function (resolve) {
+      if(isFileExist(build.entry)) {
+        console.log(' - linking \x1b[35m' + path.basename(build.entry) + '\x1b[0m');
+        build.output = path.parse(build.output);
+        build.outfile = build.output.dir + build.output.name + version + build.output.ext;
+        executeSass(build);
+        removeOldBuild(build);
+      }
+      resolve();
+    });
   }
 
-  function applyVersioning() {
-    return fileVersioner.applyVersion(context.regexVersioning, onAfterRenamingFile);
-  }
-
-  function onAfterRenamingFile(file, newFileName) {
-    if(file.search(/.css.map$/)!==-1) {
-      let refFile = newFileName.substring(0, newFileName.length-4);
-      let content = fs.readFileSync(file, 'utf8');
-      content = content.replace(/("file":")(.*)("})/, '$1'+refFile+'$3');
-      fs.writeFile(file, content, 'utf8', function(){});
-    } else if(file.search(/.css$/)!==-1) {
-      let refFile = newFileName+'.map';
-      let content = fs.readFileSync(file, 'utf8');
-      content = content.replace(/(\/\*# sourceMappingURL=)(.*)( \*\/)/, '$1'+refFile+'$3');
-      fs.writeFile(file, content, 'utf8', function(){});
+  function isFileExist(file) {
+    if(!fs.existsSync(file)) {
+      console.error(" - ERROR "+path.basename(file)+" -> file not found");
+      return false;
     }
+    return true;
   }
 
-  function removeOldBuilds() {
-    fileVersioner.remove(context.regexRemoving, options.nbOfOldVersions);
+  function executeSass(build) {
+    var result = sass.renderSync({
+      file: build.entry,
+      outputStyle: 'compressed',
+      outFile: build.outfile,
+      sourceMap: true
+    });
+    fs.writeFileSync(build.outfile, result.css, 'utf8');
+    fs.writeFileSync(build.outfile+'.map', result.map, 'utf8');
+  }
+
+  function removeOldBuild(build) {
+    let fileVersioner = new FileVersioner(build.output.dir);
+    let regex = new RegExp(build.output.name+'.*'+build.output.ext);
+    fileVersioner.remove(regex, options.nbOfOldVersions);
   }
 
   return {

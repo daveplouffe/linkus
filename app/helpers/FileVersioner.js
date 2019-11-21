@@ -6,28 +6,24 @@ let FileVersioner = function (directoryPath) {
   let version = +new Date();
 
   function remove(regex, nbOfOldFilesKept = 5) {
-    return getFiles(regex).then(function (results) {
-      for (let i = 0; i < results.length - nbOfOldFilesKept; i++) {
-        fs.unlinkSync(directoryPath + results[i].file);
-      }
-    });
+    let results = getFiles(regex);
+    for (let i = 0; i < results.length - nbOfOldFilesKept; i++)
+      fs.unlinkSync(directoryPath + results[i].file);
   }
 
   /**
    * @param regex
    * @param {function(file:string, newFileName:string)} onAfterRename
-   * @returns {Promise}
    */
-  function applyVersion(regex, onAfterRename = null ) {
-    return getFiles(regex).then(function (results) {
-      for (let i = 0; i < results.length; i++) {
-        let oldFile = directoryPath + results[i].file;
-        let newFileName =  getNewFileName(results[i]);
-        let newFile = directoryPath + newFileName;
-        fs.renameSync(oldFile, newFile);
-        if(onAfterRename) onAfterRename(newFile, newFileName);
-      }
-    });
+  function applyVersion(regex, onAfterRename = null) {
+    let results = getFiles(regex);
+    for (let i = 0; i < results.length; i++) {
+      let oldFile = directoryPath + results[i].file;
+      let newFileName = getNewFileName(results[i]);
+      let newFile = directoryPath + newFileName;
+      fs.renameSync(oldFile, newFile);
+      if (onAfterRename) onAfterRename(newFile, newFileName);
+    }
   }
 
   function updateTimeStamp() {
@@ -39,20 +35,18 @@ let FileVersioner = function (directoryPath) {
   }
 
   function getFiles(regex) {
-    return new Promise(function (resolve) {
-      let files = fs.readdirSync(directoryPath);
-      let fileFound = [];
-      let match;
-      files.forEach(function (file) {
-        match = file.match(regex);
-        if (match)
-          fileFound.push({
-            file,
-            match
-          });
-      });
-      resolve(fileFound);
-    })
+    let files = fs.readdirSync(directoryPath);
+    let fileFound = [];
+    let match;
+    files.forEach(function (file) {
+      match = file.match(regex);
+      if (match)
+        fileFound.push({
+          file,
+          match
+        });
+    });
+    return fileFound;
   }
 
   function getNewFileName(result) {
