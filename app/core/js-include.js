@@ -17,7 +17,7 @@ const path = require('path');
  * @type {{execute: (function(file))}}
  */
 let jsInclude = {
-  regex: /\blinkus_include\b[\s]*\([\s]*'(.*)'[\s]*\)|\blinkus_import_copy\b[\s]*\([\s]*'(.*)'[\s]*\)[\s]*;?/gi,
+  regex: /\blinkus_include\b[\s]*\([\s]*(?:'|")(.*)(?:'|")[\s]*\)|\blinkus_import_copy\b[\s]*\([\s]*'(.*)'[\s]*\)[\s]*;?/gi,
 
   /**
    * @param {{file, content, basedir, linkus}} args

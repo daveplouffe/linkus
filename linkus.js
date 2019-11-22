@@ -13,6 +13,7 @@ require('./app/file-processing-type/js/linkus-js');
 require('./app/helpers/linkus-auto-generated-clean');
 //endregion
 
+/**@typedef {function(path:string)} linkus_include */
 
 let Linkus = function (props) {
   let that = this;
