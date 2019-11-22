@@ -44,9 +44,7 @@
     let builds = [];
     builds.push({
       entry: inputdir+'/default.scss',
-      output: outputdir+'/default.$date$.css',
-      regexVersioning: /default.(\$date\$).css/,
-      regexRemoving: /default.*.css(?:.map)?$/
+      output: outputdir+'/default.css',
     });
     
     
