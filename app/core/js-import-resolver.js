@@ -1,5 +1,6 @@
 const Utils = require('../helpers/utils');
 const fs = require('fs');
+const path = require('path');
 
 /**
  * @type {{hasherAlgorithm: string, regexImports: RegExp}}
@@ -64,6 +65,12 @@ JsImportResolver.prototype = function () {
     }
   }
 
+  /**
+   *Parfois l'INODE des fichiers peut être les mêmes à cause de la conversion intrinsèque à javascript
+   * des nombres en "double". Par conséquent un fichier est identifié de manière unique à l'aide
+   * de son INODE et du nom de fichier.
+   * Node occasionally gives multiple files/folders the same inode: https://github.com/nodejs/node/issues/12115
+   */
   function getFileImports(filePath) {
     let fileListOfImports = [];
     let importCounter = 0;
@@ -79,12 +86,13 @@ JsImportResolver.prototype = function () {
       let matchedFile = m[1];
       try {
         if (matchedFile) {
-          matchedFile = Utils.resolveFile(m[1], pathBase);
+          matchedFile = Utils.resolveFile(matchedFile, pathBase);
+          let parts = path.parse(matchedFile);
           let matchedFileStat = fs.statSync(matchedFile);
           importCounter++;
-          fileListOfImports[matchedFileStat.ino] = {
+          fileListOfImports[matchedFileStat.ino+'.'+parts.name] = {
             file: matchedFile,
-            ino: matchedFileStat.ino,
+            ino: matchedFileStat.ino+'.'+parts.name,
             mtime: matchedFileStat.mtime
           };
         }
@@ -100,7 +108,7 @@ JsImportResolver.prototype = function () {
     let filePart = Utils.breakFullPathFile(filePath);
     return {
       file: filePath,
-      ino: fileStat.ino,
+      ino: fileStat.ino+'.'+filePart.fileName,
       mtime: fileStat.mtime,
       imports: fileListOfImports,
       importCount: importCounter,
