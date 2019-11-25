@@ -10,8 +10,12 @@ const buildRemoverCommand = {
     let name = linkus.context.outputParts.fileName;
     let directory = linkus.context.outputParts.path;
     let fileVersioner = new FileVersioner(directory);
-    let regex = new RegExp('^' + name + '.*' + linkus.context.outputParts.extension);
+    let regex = new RegExp('^' + name + '.*(?<!.min)' + linkus.context.outputParts.extension+'$');
+    let regexMin = new RegExp('^' + name + '.*' + '.min' + linkus.context.outputParts.extension+'$');
+    let regexMinMap = new RegExp('^' + name + '.*' + '.min' + linkus.context.outputParts.extension+'.map$');
     fileVersioner.remove(regex, count);
+    fileVersioner.remove(regexMin, count);
+    fileVersioner.remove(regexMinMap, count);
   }
 };
 
