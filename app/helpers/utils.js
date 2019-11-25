@@ -215,22 +215,23 @@ const Utils = {
    * @returns {{path: string, fileName: string, extension: string}}
    */
   breakFullPathFile(fullPathFile) {
-    let re = /[\\\/]/g;
-    let match, startFileNameIndex;
-    while ((match = re.exec(fullPathFile)) != null) {
-      startFileNameIndex = match.index + 1
+    let n, N = fullPathFile.length;
+    let indexDot=N;
+    for(n=N-1; n>=0; n--) {
+      if(fullPathFile[n]==='.') {
+        indexDot = n;
+        break;
+      }
     }
-    let dotIndex = fullPathFile.indexOf('.', startFileNameIndex);
-    if (dotIndex === -1) dotIndex = fullPathFile.length;
-    else {
-      while (fullPathFile.indexOf('.', dotIndex + 1) !== -1) {
-        dotIndex = fullPathFile.indexOf('.', dotIndex + 1);
+    for(;n>=0; n--) {
+      if(fullPathFile[n]==='\\' || fullPathFile[n]==='/') {
+        break;
       }
     }
     return {
-      path: startFileNameIndex ? fullPathFile.substring(0, startFileNameIndex) : '',
-      fileName: fullPathFile.substring(startFileNameIndex, dotIndex),
-      extension: fullPathFile.substring(dotIndex),
+      path: fullPathFile.substr(0, n+1),
+      fileName: fullPathFile.substr(n+1, indexDot-n-1),
+      extension: fullPathFile.substr(indexDot, N-indexDot),
       file: fullPathFile
     }
   },
