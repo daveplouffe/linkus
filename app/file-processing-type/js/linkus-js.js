@@ -12,7 +12,7 @@ const OutputMaker = require('../../core/output-maker');
 eventbus.on(LinkusEvent.onResolve, function (linkus) {
   if (linkus.context.entry.extension === '.js') {
     process.stdout.write('linking \x1b[35m' + linkus.context.entry.fileName + linkus.context.entry.extension + '\x1b[0m');
-    let state = checkFileState(linkus);
+    let state = checkFileStateWithCache(linkus);
     switch (state.status) {
       case 'minor change':
         saveCodeChanged(linkus, state);
@@ -21,6 +21,7 @@ eventbus.on(LinkusEvent.onResolve, function (linkus) {
         break;
       case 'major change':
       default:
+        process.stdout.write('\n');
         runDependencyResolver(linkus);
     }
   }
@@ -38,10 +39,10 @@ function getOrderedDependencies(linkus) {
   return dependency.resolveOrdered(imports);
 }
 
-function checkFileState(linkus) {
+function checkFileStateWithCache(linkus) {
   let cachedDependencies = linkus.cached.getDependencies();
   let N = cachedDependencies.length;
-  if (N === 0 || !linkus.cached.isOutputfileExist()) return 'nobuild';
+  if (N === 0 || !linkus.cached.isOutputFileExist()) return 'nobuild';
   let codeChanged = [];
   let notFound = [];
   let importChanged = [];
@@ -59,24 +60,29 @@ function checkFileState(linkus) {
       }
     }
   }
-  let status;
-  if (notFound.length > 0 || importChanged.length > 0) {
-    status = 'major change';
-  }
-  else if (codeChanged.length > 0) {
-    process.stdout.write(' ->\x1b[33m code change detected\x1b[0m');
-    status = 'minor change';
-  } else {
-    process.stdout.write(' ->\x1b[32m no change detected\x1b[0m');
-    status = 'nochange';
-  }
-  process.stdout.write('\n');
+  let status = getBuildStatus(notFound.length, importChanged.length, codeChanged.length);
   return {
     status,
     codeChanged,
     notFound,
     importChanged
   };
+}
+
+function getBuildStatus(nbNotFound, nbImportChanged, nbCodeChanged) {
+  let status;
+  if (nbNotFound > 0 || nbImportChanged > 0) {
+    status = 'major change';
+  }
+  else if (nbCodeChanged > 0) {
+    process.stdout.write(' ->\x1b[33m code change detected\x1b[0m\n');
+    status = 'minor change';
+  }
+  else {
+    process.stdout.write(' ->\x1b[32m no change detected\x1b[0m\n');
+    status = 'nochange';
+  }
+  return status;
 }
 
 function isImportHasChanged(fileinfo) {
@@ -88,7 +94,7 @@ function isImportHasChanged(fileinfo) {
 function saveCodeChanged(linkus, changed) {
   let outputMaker = OutputMaker.create();
   changed.codeChanged.forEach(function (fileInfo) {
-    process.stdout.write('\n  ...updating \x1b[32m' + fileInfo.fileName + fileInfo.extension + '\x1b[0m');
+    process.stdout.write('  ...updating \x1b[32m' + fileInfo.fileName + fileInfo.extension + '\x1b[0m\n');
     let oldBytes = fileInfo.bytes;
     let content = outputMaker.formatFileContent(linkus, fileInfo);
     //linkus.cached.saveFile(fileInfo.ino, content);
