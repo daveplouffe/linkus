@@ -7,3 +7,4 @@ docs
 *.vsdx
 /logs
 /vendor
+package-lock.json

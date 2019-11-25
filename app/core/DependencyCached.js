@@ -1,10 +1,11 @@
 const fs = require('fs');
 const Utils = require('../helpers/utils');
+const path = require('path');
 
 let DependencyCached = function (linkus) {
 
   let cachedir = linkus.context.outputParts.path + '/linkus_cache/';
-  let dependencyCachedFile = linkus.context.outputParts.fileName + '_cached.json';
+  let dependencyCachedFile = linkus.context.outputParts.fileName + '_cache.json';
   Utils.createFolders(cachedir);
   let loaded = [];
 
@@ -29,8 +30,17 @@ let DependencyCached = function (linkus) {
     return loaded.output;
   }
 
-  function isOutputfileExist() {
+  function isOutputFileExist() {
     return fs.existsSync(loaded.output);
+  }
+
+  function getCompiledOutputFileName() {
+    let parsedPath = path.parse(loaded.output);
+    return parsedPath.dir + '/' + parsedPath.name + '.min' + parsedPath.ext;
+  }
+
+  function isOutputCompilationExist() {
+    return fs.existsSync(getCompiledOutputFileName());
   }
 
   function saveDependencies(dependencies) {
@@ -59,7 +69,9 @@ let DependencyCached = function (linkus) {
     saveFile,
     loadFile,
     getOutput,
-    isOutputfileExist
+    isOutputFileExist,
+    isOutputCompilationExist,
+    getCompiledOutputFileName
   }
 };
 

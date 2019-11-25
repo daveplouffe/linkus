@@ -86,6 +86,7 @@ require('./app/core/commandExecutor')();
 module.exports = Linkus;
 
 function startBuild(linkus) {
+  let version = Utils.getBuildNumber();
   console.log('');
   console.log('Linkus start on', new Date().toLocaleString());
   linkus.startTime = process.hrtime();
@@ -96,7 +97,10 @@ function startBuild(linkus) {
     context.output = normalizeOutput(context.output, linkus.props.basedir);
     context.entry = normalizeInput(context.entry, linkus.props.basedir);
     context.outputParts = Utils.breakFullPathFile(context.output);
-    context.output = context.outputParts.path + context.outputParts.fileName + '.' + Utils.getDateTimeVersion() + context.outputParts.extension;
+    context.outputParts.fileNameWithVersion = context.outputParts.fileName + '.' + version;
+    context.output = context.outputParts.path + context.outputParts.fileNameWithVersion + context.outputParts.extension;
+    context.outputParts.file = context.output;
+    context.version = version;
     linkus.context = context;
     linkus.cached = new DependencyCached(linkus);
     eventbus.emit(LinkusEvent.onBeforeResolve, linkus);

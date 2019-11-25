@@ -25,22 +25,6 @@ const Utils = {
     }
   },
 
-  getDateTimeVersion() {
-    let time = new Date();
-    let month = time.getMonth() + 1;
-    let hours = time.getHours();
-    let curDate = time.getDate();
-    let minutes = time.getMinutes();
-    let seconds = time.getSeconds();
-    return time.getFullYear()
-      + (month < 10 ? '0' : '') + month
-      + (curDate < 10 ? '0' : '') + curDate
-      + (hours < 10 ? '0' : '') + hours
-      + (minutes < 10 ? '0' : '') + minutes
-      + (seconds < 10 ? '0' : '') + seconds;
-  },
-
-
   /**
    * @param regex
    * @param {string} str
