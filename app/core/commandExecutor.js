@@ -11,6 +11,7 @@ let commandExecutor = function () {
   eventbus.on(LinkusEvent.onOutputDone, onOutputDone);
   eventbus.on(LinkusEvent.onBeforeCompile, onBeforeCompile);
   eventbus.on(LinkusEvent.onCompileDone, onCompileDone);
+  eventbus.on(LinkusEvent.onLinkingDone, onLinkingDone);
   eventbus.on(LinkusEvent.onBuildDone, onBuildDone);
 
   function onBeforeBuild(linkus) {
@@ -41,6 +42,10 @@ let commandExecutor = function () {
     executeCommands(linkus, linkus.props.plugins.onCompileDone);
     console.log('\x1b[32m%s\x1b[0m', linkus.context.entry.fileName + linkus.context.entry.extension + " is build"
       + ' (' + Utils.getTimeDiffInSeconds(linkus.context.startBuild) + ' seconds)');
+  }
+
+  function onLinkingDone(linkus) {
+    executeCommands(linkus, linkus.props.plugins.onLinkingDone);
   }
 
   function onBuildDone(linkus) {

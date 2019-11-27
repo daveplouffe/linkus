@@ -41,6 +41,7 @@ let Linkus = function (props) {
       onOutputDone: [],
       onBeforeCompile: [],
       onCompileDone: [],
+      onLinkingDone: [],
       onBuildDone: []
     }
   };
@@ -75,6 +76,7 @@ let Linkus = function (props) {
  * @param {Array} props.plugins.onOutputDone
  * @param {Array} props.plugins.onBeforeCompile
  * @param {Array} props.plugins.onCompileDone
+ * @param {Array} props.plugins.onLinkingDone
  * @param {Array} props.plugins.onBuildDone
  * @returns {Linkus}
  */
@@ -113,6 +115,7 @@ function startBuild(linkus) {
       eventbus.emit(LinkusEvent.onCompile, linkus);
       eventbus.emit(LinkusEvent.onCompileDone, linkus);
     }
+    eventbus.emit(LinkusEvent.onLinkingDone, linkus)
   }
   eventbus.emit(LinkusEvent.onBuildDone, linkus);
 }

@@ -1,5 +1,5 @@
 /**
- * @type {{onBeforeBuild: string, onBeforeResolve: string, onResolve: string, onResolveDone: string, onMakeOutput: string, onBeforeWriteContentToOutput: string, onOutputDone: string, onBeforeCompile: string, onCompile: string, onCompileDone: string, onBuildDone: string}}
+ * @type {{onBuildDone: string, onBeforeCompile: string, onBeforeBuild: string, onResolve: string, onResolveDone: string, onLinkingDone: string, onMakeOutput: string, onBeforeResolve: string, onCompile: string, onOutputDone: string, onBeforeWriteContentToOutput: string, onCompileDone: string}}
  */
 const LinkusEvent = {
 
@@ -52,6 +52,10 @@ const LinkusEvent = {
    * {Linkus}
    */
   onCompileDone: 'linkus-on-compile-done',
+
+
+  /** {linkus} */
+  onLinkingDone: 'linkus-on-linking-done',
 
   /**
    * {Linkus}
