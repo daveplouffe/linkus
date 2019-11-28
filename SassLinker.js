@@ -46,7 +46,8 @@ let SassLinker = function(options) {
       file: build.entry,
       outputStyle: 'compressed',
       outFile: build.outfile,
-      sourceMap: true
+      sourceMap: true,
+      includePaths: [options.basedir+"/node_modules"]
     });
     fs.writeFileSync(build.outfile, result.css, 'utf8');
     fs.writeFileSync(build.outfile+'.map', result.map, 'utf8');

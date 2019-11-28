@@ -49,6 +49,7 @@
     
     
     let sassLinker = new SassLinker({
+      basedir: __dirname, // path that contain node_modules directory
       builds,
       nbOfOldVersions:2
     });
