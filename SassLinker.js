@@ -24,7 +24,8 @@ let SassLinker = function(options) {
       if(isFileExist(build.entry)) {
         console.log(' - linking \x1b[35m' + path.basename(build.entry) + '\x1b[0m');
         build.output = path.parse(build.output);
-        build.outfile = build.output.dir + '/' + build.output.name + version + build.output.ext;
+        build.output.dir += '/';
+        build.outfile = build.output.dir + build.output.name + version + build.output.ext;
         executeSass(build);
         removeOldBuild(build);
       }
