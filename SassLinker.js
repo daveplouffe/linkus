@@ -24,7 +24,7 @@ let SassLinker = function(options) {
       if(isFileExist(build.entry)) {
         console.log(' - linking \x1b[35m' + path.basename(build.entry) + '\x1b[0m');
         build.output = path.parse(build.output);
-        build.outfile = build.output.dir + build.output.name + version + build.output.ext;
+        build.outfile = build.output.dir + '/' + build.output.name + version + build.output.ext;
         executeSass(build);
         removeOldBuild(build);
       }
@@ -53,8 +53,10 @@ let SassLinker = function(options) {
 
   function removeOldBuild(build) {
     let fileVersioner = new FileVersioner(build.output.dir);
-    let regex = new RegExp(build.output.name+'.*'+build.output.ext);
-    fileVersioner.remove(regex, options.nbOfOldVersions);
+    let regexCss = new RegExp(build.output.name+ '.*'+build.output.ext+'$');
+    let regexMap = new RegExp(build.output.name+'.*'+build.output.ext+'.map$');
+    fileVersioner.remove(regexCss, options.nbOfOldVersions);
+    fileVersioner.remove(regexMap, options.nbOfOldVersions);
   }
 
   return {

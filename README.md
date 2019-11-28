@@ -50,7 +50,7 @@
     
     let sassLinker = new SassLinker({
       builds,
-      nbOfOldVersions:2*2 // multiplied by 2 for .map file types
+      nbOfOldVersions:2
     });
     sassLinker.execute();
 
