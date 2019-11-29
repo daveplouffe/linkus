@@ -49,7 +49,10 @@ let SassLinker = function(options) {
       sourceMap: true,
       includePaths: [options.basedir+"/node_modules"]
     });
-    fs.writeFileSync(build.outfile, result.css, 'utf8');
+    if(result.css[0]===0xef) { // remove BOM if present...
+      fs.writeFileSync(build.outfile, result.css.toString().substr(1), 'utf8');
+    } else
+      fs.writeFileSync(build.outfile, result.css, 'utf8');
     fs.writeFileSync(build.outfile+'.map', result.map, 'utf8');
   }
 
