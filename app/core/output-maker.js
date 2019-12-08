@@ -85,12 +85,13 @@ Utils.inherit(OutputMaker, function () {
      )                                end if #1
      */
     let content;
-    fs.writeFileSync(options.output, '', outputMaker.props.fileEncoding);
+    var writerStream = fs.createWriteStream(options.output);
     for (let i = 0; i < nbOfFiles; i++) {
       dependencyOrder[i].count = i;
       content = outputMaker.formatFileContent(linkus, dependencyOrder[i]);
-      fs.appendFileSync(options.output, content, outputMaker.props.fileEncoding);
+      writerStream.write(content);
     }
+    writerStream.close()
   }
 
   function doMakeOutputFromCached(outputMaker, linkus) {

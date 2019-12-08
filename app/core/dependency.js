@@ -110,6 +110,7 @@ let dependency = function () {
 
     arrayImportToInoKey(imports) {
       let dependencies = [];
+      imports = imports || [];
       for (let i = 0; i < imports.length; i++)
         dependencies[imports[i].ino] = imports[i];
       return dependencies;
