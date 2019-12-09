@@ -3,6 +3,7 @@ const fs = require('fs');
 const Utils = require('../helpers/utils');
 const eventbus = require('../helpers/eventbus.js');
 const LinkusEvent = require('./linkus-event');
+const sleep = require('sleep');
 //endregion
 
 /**
@@ -85,13 +86,14 @@ Utils.inherit(OutputMaker, function () {
      )                                end if #1
      */
     let content;
-    var writerStream = fs.createWriteStream(options.output);
+    let buffer = "";
+
     for (let i = 0; i < nbOfFiles; i++) {
       dependencyOrder[i].count = i;
       content = outputMaker.formatFileContent(linkus, dependencyOrder[i]);
-      writerStream.write(content);
+      buffer += content;
     }
-    writerStream.close()
+    fs.writeFileSync(options.output, buffer, 'utf8');
   }
 
   function doMakeOutputFromCached(outputMaker, linkus) {
