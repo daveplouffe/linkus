@@ -3,7 +3,6 @@ const fs = require('fs');
 const Utils = require('../helpers/utils');
 const eventbus = require('../helpers/eventbus.js');
 const LinkusEvent = require('./linkus-event');
-const sleep = require('sleep');
 //endregion
 
 /**
