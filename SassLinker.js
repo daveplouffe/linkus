@@ -6,11 +6,11 @@ const FileVersioner = require('./app/helpers/FileVersioner');
 
 /**
  * @param options.nbOfOldVersions
- * @param {{entry, output, regexVersioning, regexRemoving}} options.builds
+ * @param {{entry, output, regexVersioning, regexRemoving, version}} options.builds
  */
 let SassLinker = function(options) {
 
-  let version = '.'+Utils.getBuildNumber();
+  let version = options.version || '.'+Utils.getBuildNumber();
 
   function execute() {
     console.log('SassLinker start on', new Date().toLocaleString());
