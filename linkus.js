@@ -22,6 +22,7 @@ let Linkus = function (props) {
     builds: [],
     oldBuildCount: 5,
     version: null,
+    nocache: false,
     removeConsole: false,
     fileMapping: {
       enabled: false,
