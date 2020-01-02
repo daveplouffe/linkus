@@ -24,8 +24,8 @@ let defaultPlugins = function () {
       props.plugins.onBeforeWriteContentToOutput.unshift(commands.consoleRemover);
     }
     props.plugins.onBeforeWriteContentToOutput.unshift(commands.jsInclude);
-    props.plugins.onBeforeWriteContentToOutput.unshift(commands.htAccessLoader);
-    props.plugins.onBeforeWriteContentToOutput.unshift(commands.copyFileLoader);
+    //props.plugins.onBeforeWriteContentToOutput.unshift(commands.htAccessLoader);
+    //props.plugins.onBeforeWriteContentToOutput.unshift(commands.copyFileLoader);
     //props.plugins.onBeforeWriteContentToOutput.push(commands.cacheFile); // must be last
     props.plugins.onLinkingDone.push(commands.buildRemover);
   }

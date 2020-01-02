@@ -55,13 +55,18 @@ let Linkus = function (props) {
   propertyValidator.validate(that.props);
   //startWatch(that);
   defaultPlugins.append(that.props);
-  startBuild(that);
+};
+
+Linkus.prototype.compile = function() {
+  startLinking(this);
+  return this;
 };
 
 /**
  * @param {object} props
  * @param {string} props.basedir
  * @param {number} props.oldBuildCount
+ * @param {string} props.version
  * @param {Array<{entry, output}>} props.builds
  * @param {Array} props.builds
  * @param {{enabled: boolean, files: Array}} props.fileMapping
@@ -82,13 +87,17 @@ let Linkus = function (props) {
  * @returns {Linkus}
  */
 Linkus.create = function (props) {
+  return Linkus.make(props).compile();
+};
+
+Linkus.make = function (props) {
   return new Linkus(props);
 };
 
 require('./app/core/commandExecutor')();
 module.exports = Linkus;
 
-function startBuild(linkus) {
+function startLinking(linkus) {
   if(linkus.props.version===null)
     linkus.props.version = Utils.getBuildNumber();
   console.log('');
