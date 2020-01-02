@@ -11,7 +11,7 @@ const LinkusEvent = require('./linkus-event');
  */
 let OutputMaker = function (props) {
   this.props = {
-    regexImportRemover: /(?:^\s*\bimport\b[\s\S]*?['"](?:\n|;[\s\S]))|(?:^ *\bexport\b[\s]*(?: *\bdefault\b[\s]*)?(?:(?=\b(?:function|const|let|var)\b)|[\s\S]*?(?:}|;)))/igm,
+    regexImportRemover: /(?:^\s*\bimport\b[\s\S]*?['"][\s;]+)|(?:^[\s]*\bexport\b[\s]*(?: *\bdefault\b[\s]*)?(?:(?=\b(?:function|const|let|var)\b)|[\s\S]+?[\s;}]+))|(?:^\s*\bmodule\.exports\b[\s]+=[\s]+[\S]+[\s;]+?)/igm,
     fileEncoding: 'utf8'
   };
   Utils.extend(this.props, props);
