@@ -10,7 +10,7 @@ const FileVersioner = require('./app/helpers/FileVersioner');
  */
 let SassLinker = function(options) {
 
-  let version = (options.version ? options.version :'.'+ Utils.getBuildNumber());
+  let version = options.version || '.'+Utils.getBuildNumber();
 
   function execute() {
     console.log('SassLinker start on', new Date().toLocaleString());

@@ -12,7 +12,10 @@ const OutputMaker = require('../../core/output-maker');
 eventbus.on(LinkusEvent.onResolve, function (linkus) {
   if (linkus.context.entry.extension === '.js') {
     process.stdout.write('linking \x1b[35m' + linkus.context.entry.fileName + linkus.context.entry.extension + '\x1b[0m');
-    let state = checkFileStateWithCache(linkus);
+    let state = {};
+    if(!linkus.props.nocache)
+      state = checkFileStateWithCache(linkus);
+
     switch (state.status) {
       case 'minor change':
         saveCodeChanged(linkus, state);
