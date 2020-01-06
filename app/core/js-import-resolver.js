@@ -6,7 +6,7 @@ const path = require('path');
  * @type {{hasherAlgorithm: string, regexImports: RegExp}}
  */
 let JsImportResolverProperties = {
-  regexImports: /\bimport\b.*?(?:from)?[\s\S]+?['"]([^'"]*?)['"]/gm,
+  regexImports: /\bimport\b.*?(?:from)?[\s\S]+?['"](.*?)['"]|\brequire\b[\s]*\([\s]*['"](.+?)['"][\s]*\)/gmi,
   hasherAlgorithm: 'sha1',
 };
 
@@ -83,7 +83,7 @@ JsImportResolver.prototype = function () {
       if (m.index === resolver.props.regexImports.lastIndex) {
         resolver.props.regexImports.lastIndex++;
       }
-      let matchedFile = m[1];
+      let matchedFile = m[1]||m[2];
       try {
         if (matchedFile) {
           matchedFile = Utils.resolveFile(matchedFile, pathBase);
