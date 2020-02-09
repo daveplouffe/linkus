@@ -1,3 +1,4 @@
+const Utils = require('../helpers/utils');
 let FileMapping = function (linkus) {
 
   function isFileMappingEnabled() {
