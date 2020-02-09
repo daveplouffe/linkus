@@ -28,11 +28,6 @@ JsImportResolver.make = function (props) {
 JsImportResolver.prototype = function () {
   let resolver;
   let fileFound = [];
-  let counterImports = 0;
-
-  let notAnalysedFileCounter;
-  let fileAnalysed;
-  let notAnalysedFiles;
 
   let container = {};
   let resolvedFileStack=[];
