@@ -46,8 +46,35 @@ let DependencyCached = function (linkus) {
   function saveDependencies(dependencies) {
     saveFile(dependencyCachedFile, JSON.stringify({
       output: linkus.context.output,
-      dependencies
+      dependencies: _dependenciesToUncircularObject(dependencies)
     }));
+  }
+
+  function _dependenciesToUncircularObject(dependencies) {
+    let result = [];
+    dependencies.forEach((dependency)=> {
+      let o = {
+        file: dependency.file,
+        ino: dependency.ino,
+        mtime: dependency.mtime,
+        imports: [],
+        importCount: dependency.importCount,
+        fileName: dependency.fileName,
+        extension: dependency.extension,
+        dir: dependency.dir,
+        count: dependency.count,
+        bytes: dependency.bytes
+      };
+      dependency.vout.forEach((out) => {
+        o.imports.push({
+          file: out.file,
+          ino: out.ino,
+          mtime: out.mtime
+        })
+      });
+      result.push(o);
+    });
+    return result;
   }
 
   function updateDependencies() {

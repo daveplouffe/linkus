@@ -38,8 +38,8 @@ function runDependencyResolver(linkus) {
 }
 
 function getOrderedDependencies(linkus) {
-  let imports = jsImportResolver.getListOfImports(linkus.context.entry.file);
-  return dependency.resolveOrdered(imports);
+  //let imports = jsImportResolver.getListOfImports(linkus.context.entry.file);
+  return jsImportResolver.getListOfImports(linkus.context.entry.file);
 }
 
 function checkFileStateWithCache(linkus) {

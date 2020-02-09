@@ -29,41 +29,60 @@ JsImportResolver.prototype = function () {
   let resolver;
   let fileFound = [];
   let counterImports = 0;
-  let maxRecursive = 0;
-  let recursiveCounter = 0;
 
   let notAnalysedFileCounter;
   let fileAnalysed;
   let notAnalysedFiles;
 
-  function getImportsNonRecursive(file) {
-    notAnalysedFileCounter = 0;
-    notAnalysedFiles = [];
-    fileAnalysed = [];
-    let fileAnalyse = getFileImports(file);
-    fileAnalysed[fileAnalyse.ino] = fileAnalyse;
-    mergeNotAnalysed(fileAnalyse.imports);
-    counterImports++;
-    while (notAnalysedFileCounter !== 0) {
-      let nextFileToAnalyse = Object.keys(notAnalysedFiles)[0];
-      fileAnalyse = getFileImports(notAnalysedFiles[nextFileToAnalyse].file);
-      notAnalysedFileCounter--;
-      counterImports++;
-      delete notAnalysedFiles[nextFileToAnalyse];
-      fileAnalysed[fileAnalyse.ino] = fileAnalyse;
-      mergeNotAnalysed(fileAnalyse.imports);
-    }
-    return fileAnalysed;
+  let container = {};
+  let resolvedFileStack=[];
+  function resolveDependencyTree(entryFile, projectDir) {
+    let entry = insertFileToContainer(entryFile, projectDir);
+    resolveDependencies(entry);
+    return resolveOrder(entry);
   }
 
-  function mergeNotAnalysed(list) {
-    for (let m in list) {
-      if (!notAnalysedFiles[m] && !fileAnalysed[m]) {
-        notAnalysedFiles[m] = list[m];
-        notAnalysedFileCounter++;
+  function resolveDependencies(resolvedEntryFile) {
+    resolvedFileStack.push(resolvedEntryFile);
+    while(resolvedFileStack.length!==0) {
+      let curFile = resolvedFileStack.pop();
+      if(!curFile.analysed) {
+        curFile.analysed = true;
+        insertDependenciesToContainer(curFile);
       }
     }
   }
+
+  function resolveOrder(resolvedEntryFile) {
+    let ordered = [];
+    resolvedFileStack.push(resolvedEntryFile);
+    while(resolvedFileStack.length!==0) {
+      let curFile = resolvedFileStack.pop();
+      ordered.unshift(curFile);
+      curFile.vout.forEach((dependency) => {
+        dependency.in--;
+        if(dependency.in === 0)
+          resolvedFileStack.push(dependency);
+      })
+    }
+    return ordered;
+  }
+
+  function insertDependenciesToContainer(resolvedParent) {
+    let dependencies = findImports(resolvedParent);
+    dependencies.forEach((dependency)=> {
+      try {
+          let resolvedDependency = insertFileToContainer(dependency, resolvedParent.dir);
+          resolvedFileStack.push(resolvedDependency);
+          resolvedParent.vout.push(resolvedDependency);
+          resolvedDependency.vin.push(resolvedParent);
+          resolvedDependency.in++;
+      } catch (e) {
+        raiseError(__filename, resolvedParent.file, dependency);
+      }
+    });
+  }
+
 
   /**
    *Parfois l'INODE des fichiers peut être les mêmes à cause de la conversion intrinsèque à javascript
@@ -71,6 +90,41 @@ JsImportResolver.prototype = function () {
    * de son INODE et du nom de fichier.
    * Node occasionally gives multiple files/folders the same inode: https://github.com/nodejs/node/issues/12115
    */
+  function insertFileToContainer(file, baseDir) {
+    let resolvedFile = Utils.resolveFile(file, baseDir);
+    let filestats = fs.statSync(resolvedFile);
+    let fileParts = path.parse(resolvedFile);
+    let ino = filestats.ino + '.'+ fileParts.name;
+    if(!container[ino])
+      container[ino] = {
+        fileName: fileParts.name,
+        file: resolvedFile,
+        extension: fileParts.ext,
+        dir: fileParts.dir,
+        mtime: filestats.mtime,
+        ino: ino,
+        analysed: false,
+        vout: [],
+        vin: [],
+        in: 0
+      };
+    return container[ino];
+  }
+
+  function findImports(resolvedParent) {
+    let contents = fs.readFileSync(resolvedParent.file, 'utf8');
+    let imports = [];
+    let m;
+    while ((m = resolver.props.regexImports.exec(contents)) !== null) {
+      if (m.index === resolver.props.regexImports.lastIndex)
+        resolver.props.regexImports.lastIndex++;
+      let dependencyFile = m[1]||m[2];
+      if(dependencyFile)
+        imports.push(dependencyFile);
+    }
+    return imports;
+  }
+
   function getFileImports(filePath) {
     let fileListOfImports = [];
     let importCounter = 0;
@@ -132,7 +186,7 @@ JsImportResolver.prototype = function () {
       resolver = this;
       //let imports = getListOfImportsRecursive(file, {});
       //console.log('total time: '+sumDelay, '| nb imports: '+counterImports, '| nRecursive: '+maxRecursive);
-      return getImportsNonRecursive(file);
+      return resolveDependencyTree(file);
     },
 
     getFileImports(file) {

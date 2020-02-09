@@ -107,20 +107,19 @@ Utils.inherit(OutputMaker, function () {
   }
 
   function formatFileContent(linkus, fileInfo) {
-    let content = fs.readFileSync(fileInfo.file, 'utf8');
-    content = getStartDelimiter()
+    let curFile = {
+      fileInfo,
+      content: fs.readFileSync(fileInfo.file, 'utf8').replace(this.props.regexImportRemover, '')
+    };
+    linkus.context.curFile = curFile;
+    eventbus.emit(LinkusEvent.onBeforeWriteContentToOutput, linkus);
+    curFile.content = getStartDelimiter()
         .replace('%n', '' + fileInfo.count)
         .replace('%f', fileInfo.fileName)
         .replace('%p', fileInfo.file)
         .replace('%i', fileInfo.ino)
-      + content.replace(this.props.regexImportRemover, '')
+      + curFile.content
       + getEndDelimiter();
-    let curFile = {
-      fileInfo,
-      content: content
-    };
-    linkus.context.curFile = curFile;
-    eventbus.emit(LinkusEvent.onBeforeWriteContentToOutput, linkus);
     fileInfo.bytes = curFile.content.length;
     return curFile.content;
   }
