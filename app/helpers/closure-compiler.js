@@ -1,6 +1,6 @@
 var resolve = require('resolve'); // npm install resolve --save-dev
 const {execSync} = require('child_process');
-
+const ClosureCompiler = require('google-closure-compiler').compiler;
 
 //region public
 module.exports = {
@@ -34,7 +34,7 @@ let compilerOptions = {
   /**
    * by default, use compiler.jar installed by npm
    */
-  compilerFile: resolve.sync('google-closure-compiler/compiler.jar'),
+  compilerFile: resolve.sync('google-closure-compiler-java/compiler.jar'),
 
   process_common_js_modules: false,
 
