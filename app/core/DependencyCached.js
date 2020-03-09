@@ -65,13 +65,15 @@ let DependencyCached = function (linkus) {
         count: dependency.count,
         bytes: dependency.bytes
       };
-      dependency.vout.forEach((out) => {
-        o.imports.push({
-          file: out.file,
-          ino: out.ino,
-          mtime: out.mtime
-        })
-      });
+      if(dependency.vout) {
+        dependency.vout.forEach((out) => {
+          o.imports.push({
+            file: out.file,
+            ino: out.ino,
+            mtime: out.mtime
+          })
+        });
+      }
       result.push(o);
     });
     return result;

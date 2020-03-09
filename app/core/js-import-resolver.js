@@ -6,7 +6,7 @@ const path = require('path');
  * @type {{hasherAlgorithm: string, regexImports: RegExp}}
  */
 let JsImportResolverProperties = {
-  regexImports: /\bimport\b.*?(?:from)?[\s\S]+?['"](.*?)['"]|\brequire\b[\s]*\([\s]*['"](.+?)['"][\s]*\)/gmi,
+  regexImports: /^\s*?\bimport\b.*?(?:from)?[\s\S]+?['"](.*?)['"]|\brequire\b[\s]*\([\s]*['"](.+?)['"][\s]*\)|(module.exports[\s]*?=[\s\S]+?require[\s\S]*?\(.*?\))/gmi,
   hasherAlgorithm: 'sha1',
 };
 
@@ -114,7 +114,7 @@ JsImportResolver.prototype = function () {
       if (m.index === resolver.props.regexImports.lastIndex)
         resolver.props.regexImports.lastIndex++;
       let dependencyFile = m[1]||m[2];
-      if(dependencyFile)
+      if(!m[3] && dependencyFile)
         imports.push(dependencyFile);
     }
     return imports;
@@ -134,7 +134,7 @@ JsImportResolver.prototype = function () {
       }
       let matchedFile = m[1]||m[2];
       try {
-        if (matchedFile) {
+        if (!m[3] && matchedFile) {
           matchedFile = Utils.resolveFile(matchedFile, pathBase);
           let parts = path.parse(matchedFile);
           let matchedFileStat = fs.statSync(matchedFile);
@@ -179,8 +179,6 @@ JsImportResolver.prototype = function () {
     getListOfImports(file) {
       fileFound = [];
       resolver = this;
-      //let imports = getListOfImportsRecursive(file, {});
-      //console.log('total time: '+sumDelay, '| nb imports: '+counterImports, '| nRecursive: '+maxRecursive);
       return resolveDependencyTree(file);
     },
 
