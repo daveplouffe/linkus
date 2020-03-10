@@ -3,6 +3,7 @@ const fs = require('fs');
 const Utils = require('../helpers/utils');
 const eventbus = require('../helpers/eventbus.js');
 const LinkusEvent = require('./linkus-event');
+const SourceMapGenerator = require("source-map/dist/source-map").SourceMapGenerator;
 //endregion
 
 /**
@@ -11,7 +12,7 @@ const LinkusEvent = require('./linkus-event');
  */
 let OutputMaker = function (props) {
   this.props = {
-    regexImportRemover: /(?:^\s*\bimport\b[\s\S]*?['"][\s;]+)|(?:^[\s]*\bexport\b[\s]*(?: *\bdefault\b[\s]*)?(?:(?=\b(?:function|const|let|var)\b)|[\s\S]+?[\s;}]+))|(?:^\s*\bmodule\.exports\b[\s]+=.+[;\n]+?)|^[\s]*(?:const|var|let).+=[\s]*\brequire\b.*.+?\)[;\n]*/gmi,
+    regexImportRemover: /^ *((?:\bimport\b[\s\S]*?['"][\s;]+?)|(?:\bexport\b[\s]*(?: *\bdefault\b[\s]*)?(?:(?=\b(?:function|const|let|var)\b)|[ \S]+?[ ;}]+))|(?:\bmodule\.exports\b[ ]+=.+[; ]+?)|(?:const|var|let).+=[\s]*\brequire\b.*.+?\)[; ]*)/gmi,
     fileEncoding: 'utf8'
   };
   Utils.extend(this.props, props);
@@ -86,11 +87,29 @@ Utils.inherit(OutputMaker, function () {
      */
     let content;
     let buffer = "";
+    let numberOfLines = 10;
+
+    let map = new SourceMapGenerator({file: linkus.context.output});
 
     for (let i = 0; i < nbOfFiles; i++) {
       dependencyOrder[i].count = i;
       content = outputMaker.formatFileContent(linkus, dependencyOrder[i]);
+      let nLines = content.split('\n').length;
+      if(linkus.props.sourcemap) {
+        for(let k=0; k<nLines; k++) {
+          map.addMapping({
+            generated: {line: numberOfLines + k, column: 0},
+            source: '..'+Utils.getRelativePath(dependencyOrder[i].file,linkus.props.basedir),
+            original: {line: 1 + k, column: 0}
+          });
+        }
+        numberOfLines += nLines-1;
+      }
       buffer += content;
+    }
+    if(linkus.props.sourcemap) {
+      buffer += '\n\n//# sourceMappingURL='+linkus.context.outputParts.fileNameWithVersion+'.js.map';
+      fs.writeFileSync(options.output+'.map', map.toString(), 'utf8');
     }
     fs.writeFileSync(options.output, buffer, 'utf8');
   }
@@ -107,9 +126,10 @@ Utils.inherit(OutputMaker, function () {
   }
 
   function formatFileContent(linkus, fileInfo) {
+    let fileContent = fs.readFileSync(fileInfo.file, 'utf8');
     let curFile = {
       fileInfo,
-      content: fs.readFileSync(fileInfo.file, 'utf8').replace(this.props.regexImportRemover, '')
+      content: fileContent.replace(this.props.regexImportRemover, '/*$1*/')
     };
     linkus.context.curFile = curFile;
     eventbus.emit(LinkusEvent.onBeforeWriteContentToOutput, linkus);

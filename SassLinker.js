@@ -58,8 +58,8 @@ let SassLinker = function(options) {
 
   function removeOldBuild(build) {
     let fileVersioner = new FileVersioner(build.output.dir);
-    let regexCss = new RegExp(build.output.name+ '.*'+build.output.ext+'$');
-    let regexMap = new RegExp(build.output.name+'.*'+build.output.ext+'.map$');
+    let regexCss = new RegExp('^'+build.output.name +'{'+build.output.name.length+'}.*\\'+build.output.ext+'$');
+    let regexMap = new RegExp('^'+build.output.name +'{'+build.output.name.length+'}.*\\'+build.output.ext+'\\.map$');
     fileVersioner.remove(regexCss, options.nbOfOldVersions);
     fileVersioner.remove(regexMap, options.nbOfOldVersions);
   }

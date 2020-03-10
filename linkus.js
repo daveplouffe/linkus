@@ -21,6 +21,7 @@ let Linkus = function (props) {
     basedir: '',
     builds: [],
     oldBuildCount: 5,
+    sourcemap: true,
     version: null,
     nocache: false,
     removeConsole: false,
