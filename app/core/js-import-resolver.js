@@ -6,7 +6,7 @@ const path = require('path');
  * @type {{hasherAlgorithm: string, regexImports: RegExp}}
  */
 let JsImportResolverProperties = {
-  regexImports: /^\s*?\bimport\b.*?(?:from)?[\s\S]+?['"](.*?)['"]|\brequire\b[\s]*\([\s]*['"](.+?)['"][\s]*\)|(module.exports[\s]*?=[\s\S]+?require[\s\S]*?\(.*?\))/gmi,
+  regexImports: /^ *?\bimport\b.*?(?:from)?[\s\S]+?['"](.*?)['"]|^ *(?:let|var|const) .*= *\brequire\b *\( *['"](.+?)['"] *\);?/gmi,
   hasherAlgorithm: 'sha1',
 };
 
