@@ -9,7 +9,7 @@ const FileWatcher = require('./app/core/FileWatcher');
 const DependencyCached = require('./app/core/DependencyCached');
 
 //region linkus process
-require('./app/file-processing-type/js/linkus-js');
+require('./app/file-processing-type/js/js-controller');
 require('./app/helpers/linkus-auto-generated-clean');
 //endregion
 

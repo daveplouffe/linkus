@@ -6,7 +6,7 @@ const path = require('path');
  * @type {{hasherAlgorithm: string, regexImports: RegExp}}
  */
 let JsImportResolverProperties = {
-  regexImports: /^ *?\bimport\b.*?(?:from)?[\s\S]+?['"](.*?)['"]|^ *(?:let|var|const) .*= *\brequire\b *\( *['"](.+?)['"] *\);?/gmi,
+  regexImports: /^ *?\bimport\b.*?(?:from)?[\s\S]+?['"](.*?)['"]|^ *(?:let|var|const) .*= *\brequire\b *\( *['"](.+?)['"] *\);?|\blinkus_include\b *\( *['"](.*)['"]\)/gmi,
   hasherAlgorithm: 'sha1',
 };
 
@@ -27,10 +27,10 @@ JsImportResolver.make = function (props) {
 
 JsImportResolver.prototype = function () {
   let resolver;
-  let fileFound = [];
-
+  let includeContainer = {};
   let container = {};
   let resolvedFileStack=[];
+
   function resolveDependencyTree(entryFile, projectDir) {
     let entry = insertFileToContainer(entryFile, projectDir);
     resolveDependencies(entry);
@@ -43,7 +43,7 @@ JsImportResolver.prototype = function () {
       let curFile = resolvedFileStack.pop();
       if(!curFile.analysed) {
         curFile.analysed = true;
-        insertDependenciesToContainer(curFile);
+        resolveDependency(curFile);
       }
     }
   }
@@ -63,17 +63,25 @@ JsImportResolver.prototype = function () {
     return ordered;
   }
 
-  function insertDependenciesToContainer(resolvedParent) {
-    let dependencies = findImports(resolvedParent);
-    dependencies.forEach((dependency)=> {
+  function resolveDependency(fileInfo) {
+    let dependencies = findImports(fileInfo);
+    let resolvedDependency;
+    dependencies.imports.forEach((dependency)=> {
       try {
-          let resolvedDependency = insertFileToContainer(dependency, resolvedParent.dir);
+          resolvedDependency = insertFileToContainer(dependency.file, fileInfo.dir);
           resolvedFileStack.push(resolvedDependency);
-          resolvedParent.vout.push(resolvedDependency);
-          resolvedDependency.vin.push(resolvedParent);
+          fileInfo.vout.push(resolvedDependency);
+          resolvedDependency.vin.push(fileInfo);
           resolvedDependency.in++;
       } catch (e) {
-        raiseError(__filename, resolvedParent.file, dependency);
+        raiseError(fileInfo.file, dependency);
+      }
+    });
+    dependencies.includes.forEach((include)=> {
+      try {
+        fileInfo.include.push(insertIncludeToContainer(include.file, fileInfo.dir));
+      } catch (e) {
+        raiseError(fileInfo.file, include);
       }
     });
   }
@@ -101,25 +109,70 @@ JsImportResolver.prototype = function () {
         analysed: false,
         vout: [],
         vin: [],
+        include: [],
         in: 0
       };
     return container[ino];
   }
 
-  function findImports(resolvedParent) {
-    let contents = fs.readFileSync(resolvedParent.file, 'utf8');
-    let imports = [];
-    let m;
-    while ((m = resolver.props.regexImports.exec(contents)) !== null) {
-      if (m.index === resolver.props.regexImports.lastIndex)
-        resolver.props.regexImports.lastIndex++;
-      let dependencyFile = m[1]||m[2];
-      if(!m[3] && dependencyFile)
-        imports.push(dependencyFile);
-    }
-    return imports;
+  function insertIncludeToContainer(file, basedir) {
+    let resolvedFile = Utils.resolveFile(file, basedir);
+    let filestats = fs.statSync(resolvedFile);
+    let fileParts = path.parse(resolvedFile);
+    let ino = filestats.ino + '.'+ fileParts.name;
+    if(!includeContainer[ino])
+      includeContainer[ino] = {
+        fileName: fileParts.name,
+        file: resolvedFile,
+        extension: fileParts.ext,
+        dir: fileParts.dir,
+        mtime: filestats.mtime,
+        ino: ino
+      };
+    return includeContainer[ino];
   }
 
+  function findImports(resolvedParent) {
+    let re = resolver.props.regexImports;
+    let content = fs.readFileSync(resolvedParent.file, 'utf8');
+    let imports = [];
+    let includes = [];
+    let m;
+    let file, arr, offset;
+    while ((m = re.exec(content)) !== null) {
+      if (m.index === re.lastIndex) re.lastIndex++;
+      if(m[3]) {
+        arr = includes;
+        file = m[3];
+        offset = __reverseIndexOf(content,m.index);
+      } else {
+        arr = imports;
+        file = m[1]||m[2];
+        offset = 0;
+      }
+      arr.push({
+        file,
+        lineNumber: content.substr(0, m.index).split('\n').length,
+        column: m[0].indexOf(file)+offset
+      });
+    }
+    return {
+      imports,
+      includes
+    };
+  }
+
+  function __reverseIndexOf(content, offset) {
+    let i=0;
+    while(offset-->0) {
+      if(content[offset]==='\n')
+        return i;
+      i++
+    }
+    return 0;
+  }
+
+  /**@deprecated */
   function getFileImports(filePath) {
     let fileListOfImports = [];
     let importCounter = 0;
@@ -167,17 +220,15 @@ JsImportResolver.prototype = function () {
     };
   }
 
-
-  function raiseError(filename, filePath, matchedFile) {
-    console.error('\nError raised by ' + filename);
-    console.error('Error found in ' + filePath);
-    console.error("File not found: " + matchedFile);
+  function raiseError(file, match) {
+    console.log('\nError raised by ' + __filename);
+    console.log('\x1b[31mFile not found: ' + match.file, '\x1b[0m');
+    console.log('\tat\x1b[34m','('+ file + ':'+match.lineNumber+':'+(match.column)+')', '\x1b[0m');
     process.exit();
   }
 
   return {
     getListOfImports(file) {
-      fileFound = [];
       resolver = this;
       return resolveDependencyTree(file);
     },

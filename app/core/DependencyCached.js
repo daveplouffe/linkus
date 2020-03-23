@@ -46,7 +46,8 @@ let DependencyCached = function (linkus) {
   function saveDependencies(dependencies) {
     saveFile(dependencyCachedFile, JSON.stringify({
       output: linkus.context.output,
-      dependencies: _dependenciesToUncircularObject(dependencies)
+      dependencies: _dependenciesToUncircularObject(dependencies),
+      includes: dependencies.includes
     }));
   }
 

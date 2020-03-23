@@ -51,40 +51,6 @@ Utils.inherit(OutputMaker, function () {
      )                                      end if #1
 
      */
-    /*
-     (?:
-     ^import.*[;\s]*
-     (?:
-     from.*;
-     )?
-     |
-     ^import.*
-     ;?
-     $
-     )
-     |                                 OR
-     (?:                               if #1
-     ^export                        start by export
-     [\s]*                          and followed by whitespaces
-     (?:                            [if #2] and may be followed by
-     default                     default string
-     [\s]*                       and by whitespaces
-     )                             [endif #2]
-     ?                             condition #2 may not be present
-     (?:                            if #3
-     (?=                         condition #1
-     \b                      start word boundary of
-     (?:                             thoses
-     function|const|let|var      words
-     )
-     \b                     end word boundary
-     )                          end condition #1
-     |                          OR
-     [\s\S]*?                   take everything
-     ;                          until you get a semi-column
-     )                             end if #3
-     )                                end if #1
-     */
     let content;
     let buffer = "";
     let numberOfLines = 10;
@@ -96,10 +62,11 @@ Utils.inherit(OutputMaker, function () {
       content = outputMaker.formatFileContent(linkus, dependencyOrder[i]);
       let nLines = content.split('\n').length;
       if(linkus.props.sourcemap) {
+        let src = Utils.getRelativePath(dependencyOrder[i].file,linkus.props.basedir);
         for(let k=0; k<nLines; k++) {
           map.addMapping({
             generated: {line: numberOfLines + k, column: 0},
-            source: '..'+Utils.getRelativePath(dependencyOrder[i].file,linkus.props.basedir),
+            source: src,
             original: {line: 1 + k, column: 0}
           });
         }

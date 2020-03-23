@@ -20,7 +20,7 @@ const Utils = {
     let n = filePath.length;
     for (let i = 0; i < n; i++) {
       if (filePath[i] !== relativeTo[i]) {
-        return filePath.substr(i - 1).replace(/\\/g, "/");
+        return filePath.substr(i).replace(/\\/g, "/");
       }
     }
   },
