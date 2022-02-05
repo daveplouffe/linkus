@@ -1,6 +1,9 @@
 const Utils = require('../helpers/utils');
 const fs = require('fs');
 const path = require('path');
+const JsAnalyser = require("../core/JsAnalyser");
+const JsImportAnalyser = require("../core/JsImportAnalyser").JsImportAnalyser;
+const JsImportType = require("./JsImportAnalyser").JsImportType;
 
 /**
  * @type {{hasherAlgorithm: string, regexImports: RegExp}}
@@ -64,28 +67,29 @@ JsImportResolver.prototype = function () {
   }
 
   function resolveDependency(fileInfo) {
-    let dependencies = findImports(fileInfo);
+    let dependencies = JsImportAnalyser( JsAnalyser.execute( fs.readFileSync(fileInfo.file, 'utf8') ) );
+    fileInfo.tokens = dependencies;
     let resolvedDependency;
-    dependencies.imports.forEach((dependency)=> {
-      try {
+    dependencies.forEach(dependency => {
+      if([JsImportType.imports, JsImportType.requires].indexOf(dependency.type) !== -1) {
+        try {
           resolvedDependency = insertFileToContainer(dependency.file, fileInfo.dir);
           resolvedFileStack.push(resolvedDependency);
           fileInfo.vout.push(resolvedDependency);
           resolvedDependency.vin.push(fileInfo);
           resolvedDependency.in++;
-      } catch (e) {
-        raiseError(fileInfo.file, dependency);
-      }
-    });
-    dependencies.includes.forEach((include)=> {
-      try {
-        fileInfo.include.push(insertIncludeToContainer(include.file, fileInfo.dir));
-      } catch (e) {
-        raiseError(fileInfo.file, include);
+        } catch (e) {
+          raiseError(fileInfo.file, dependency);
+        }
+      } else if(dependency.type === JsImportType.includes) {
+        try {
+          fileInfo.include.push(insertIncludeToContainer(dependency.file, fileInfo.dir));
+        } catch (e) {
+          raiseError(fileInfo.file, dependency);
+        }
       }
     });
   }
-
 
   /**
    *Parfois l'INODE des fichiers peut être les mêmes à cause de la conversion intrinsèque à javascript
@@ -130,46 +134,6 @@ JsImportResolver.prototype = function () {
         ino: ino
       };
     return includeContainer[ino];
-  }
-
-  function findImports(resolvedParent) {
-    let re = resolver.props.regexImports;
-    let content = fs.readFileSync(resolvedParent.file, 'utf8');
-    let imports = [];
-    let includes = [];
-    let m;
-    let file, arr, offset;
-    while ((m = re.exec(content)) !== null) {
-      if (m.index === re.lastIndex) re.lastIndex++;
-      if(m[3]) {
-        arr = includes;
-        file = m[3];
-        offset = __reverseIndexOf(content,m.index);
-      } else {
-        arr = imports;
-        file = m[1]||m[2];
-        offset = 0;
-      }
-      arr.push({
-        file,
-        lineNumber: content.substr(0, m.index).split('\n').length,
-        column: m[0].indexOf(file)+offset
-      });
-    }
-    return {
-      imports,
-      includes
-    };
-  }
-
-  function __reverseIndexOf(content, offset) {
-    let i=0;
-    while(offset-->0) {
-      if(content[offset]==='\n')
-        return i;
-      i++
-    }
-    return 0;
   }
 
   /**@deprecated */

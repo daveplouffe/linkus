@@ -94,6 +94,7 @@ Utils.inherit(OutputMaker, function () {
 
   function formatFileContent(linkus, fileInfo) {
     let fileContent = fs.readFileSync(fileInfo.file, 'utf8');
+    //let fileContent = commentImportsAndExports(fileInfo);
     let curFile = {
       fileInfo,
       content: fileContent.replace(this.props.regexImportRemover, '/*$1*/')
@@ -122,6 +123,22 @@ Utils.inherit(OutputMaker, function () {
 
   function getEndDelimiter() {
     return '\n//endregion';
+  }
+
+  function commentImportsAndExports(fileInfo) {
+    let fileContent = fs.readFileSync(fileInfo.file, 'utf8');
+    let offset = 0, startIndex;
+    fileInfo.tokens.forEach(token => {
+      if(token.type < 5) {
+        startIndex = token.index + offset;
+        fileContent = fileContent.substr(0,startIndex) +
+          '/*' + fileContent.substr(startIndex, token.length) + '*/' +
+          fileContent.substr(startIndex+token.length);
+        offset+=4;
+      }
+      //console.log(token);
+    });
+    return fileContent;
   }
 
   return {
