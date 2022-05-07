@@ -2,7 +2,7 @@ const fs = require('fs');
 const eventbus = require('../../helpers/eventbus');
 const LinkusEvent = require('../../core/linkus-event');
 
-const jsImportResolver = require('../../core/js-import-resolver').make();
+const jsImportResolver = require('../../core/js-import-resolver');
 const dependency = require('../../core/dependency');
 const FileMapping = require('../../core/FileMapping');
 const OutputMaker = require('../../core/output-maker');
