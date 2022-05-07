@@ -25,6 +25,7 @@ let Linkus = function (props) {
     version: null,
     nocache: false,
     removeConsole: false,
+    modularImport: false,
     fileMapping: {
       enabled: false,
       files: []
@@ -69,6 +70,7 @@ Linkus.prototype.compile = function() {
  * @param {string} props.basedir
  * @param {number} props.oldBuildCount
  * @param {string} props.version
+ * @param {bool} props.modularImport - false by default which mean all imports will be concatenated into 1 file
  * @param {Array<{entry, output}>} props.builds
  * @param {Array} props.builds
  * @param {{enabled: boolean, files: Array}} props.fileMapping

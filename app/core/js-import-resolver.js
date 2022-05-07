@@ -1,9 +1,8 @@
 const Utils = require('../helpers/utils');
 const fs = require('fs');
 const path = require('path');
-const JsAnalyser = require("../core/JsAnalyser");
-const JsImportAnalyser = require("../core/JsImportAnalyser").JsImportAnalyser;
-const JsImportType = require("./JsImportAnalyser").JsImportType;
+const jsTokenizer = require("../core/jsTokenizer");
+const {jsImportAnalyser,jsImportType} = require("../core/jsImportAnalyser");
 
 /**
  * @type {{hasherAlgorithm: string, regexImports: RegExp}}
@@ -63,15 +62,21 @@ JsImportResolver.prototype = function () {
           resolvedFileStack.push(dependency);
       })
     }
+
+    // clean up properties
+    ordered.forEach(o=>{
+      delete o.in;
+      delete o.analysed;
+    });
     return ordered;
   }
 
   function resolveDependency(fileInfo) {
-    let dependencies = JsImportAnalyser( JsAnalyser.execute( fs.readFileSync(fileInfo.file, 'utf8') ) );
-    fileInfo.tokens = dependencies;
+    let dependencies = jsImportAnalyser( jsTokenizer( fs.readFileSync(fileInfo.file, 'utf8') ) );
+    fileInfo.analyse = dependencies;
     let resolvedDependency;
-    dependencies.forEach(dependency => {
-      if([JsImportType.imports, JsImportType.requires].indexOf(dependency.type) !== -1) {
+    dependencies.tokenOrder.forEach(dependency => {
+      if([jsImportType.imports, jsImportType.requires].indexOf(dependency.type) !== -1) {
         try {
           resolvedDependency = insertFileToContainer(dependency.file, fileInfo.dir);
           resolvedFileStack.push(resolvedDependency);
@@ -81,7 +86,7 @@ JsImportResolver.prototype = function () {
         } catch (e) {
           raiseError(fileInfo.file, dependency);
         }
-      } else if(dependency.type === JsImportType.includes) {
+      } else if(dependency.type === jsImportType.includes) {
         try {
           fileInfo.include.push(insertIncludeToContainer(dependency.file, fileInfo.dir));
         } catch (e) {
