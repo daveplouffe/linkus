@@ -2,7 +2,9 @@ const eventbus = require('../../helpers/eventbus');
 const OutputMaker = require('../../core/output-maker');
 const LinkusEvent = require('../../core/linkus-event');
 
-eventbus.on(LinkusEvent.onMakeOutput, function (linkus) {
+eventbus.on(LinkusEvent.onMakeOutput, onMakeOutput);
+
+function onMakeOutput(linkus) {
   if (linkus.context.entry.extension === '.js' && linkus.context.state !== 'NO_CHANGE') {
     let outputMaker = OutputMaker.create();
     outputMaker.makeOutput({
@@ -12,4 +14,4 @@ eventbus.on(LinkusEvent.onMakeOutput, function (linkus) {
     });
     linkus.cached.saveDependencies(linkus.context.dependencyOrder);
   }
-});
+}

@@ -57,7 +57,7 @@ JsImportResolver.prototype = function () {
     while(resolvedFileStack.length!==0) {
       let curFile = resolvedFileStack.pop();
       ordered.unshift(curFile);
-      curFile.vout.forEach((dependency) => {
+      curFile.vin.forEach((dependency) => {
         dependency.in--;
         if(dependency.in === 0)
           resolvedFileStack.push(dependency);
@@ -75,8 +75,8 @@ JsImportResolver.prototype = function () {
         try {
           resolvedDependency = insertFileToContainer(dependency.file, fileInfo.dir);
           resolvedFileStack.push(resolvedDependency);
-          fileInfo.vout.push(resolvedDependency);
-          resolvedDependency.vin.push(fileInfo);
+          fileInfo.vin.push(resolvedDependency);
+          resolvedDependency.vout.push(fileInfo);
           resolvedDependency.in++;
         } catch (e) {
           raiseError(fileInfo.file, dependency);
@@ -111,8 +111,8 @@ JsImportResolver.prototype = function () {
         mtime: filestats.mtime,
         ino: ino,
         analysed: false,
-        vout: [],
         vin: [],
+        vout: [],
         include: [],
         in: 0
       };

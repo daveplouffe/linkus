@@ -1,6 +1,9 @@
 let dependency = function () {
 
-  function reorderImports(importList) {
+  let ordered;
+  let treated;
+
+  function kahnAlgorithm(importList) {
     let i = 0;
     treated = {};
     ordered = [];
@@ -32,10 +35,6 @@ let dependency = function () {
     return ordered;
   }
 
-
-  let ordered;
-  let treated;
-
   function diff(arA, arB) {
     let diff = [];
     for (let m in arA) {
@@ -47,7 +46,7 @@ let dependency = function () {
 
   return {
     reorder(orderedImports) {
-      return reorderImports(orderedImports);
+      return kahnAlgorithm(orderedImports);
     },
 
     fileImportToArray(fileImports) {

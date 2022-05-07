@@ -66,8 +66,8 @@ let DependencyCached = function (linkus) {
         count: dependency.count,
         bytes: dependency.bytes
       };
-      if(dependency.vout) {
-        dependency.vout.forEach((out) => {
+      if(dependency.vin) {
+        dependency.vin.forEach((out) => {
           o.imports.push({
             file: out.file,
             ino: out.ino,
