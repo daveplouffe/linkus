@@ -53,28 +53,34 @@ let DependencyCached = function (linkus) {
 
   function _dependenciesToUncircularObject(dependencies) {
     let result = [];
-    dependencies.forEach((dependency)=> {
+    dependencies.forEach((dependency) => {
       let o = {
         file: dependency.file,
         ino: dependency.ino,
         mtime: dependency.mtime,
-        imports: [],
         importCount: dependency.importCount,
         fileName: dependency.fileName,
         extension: dependency.extension,
         dir: dependency.dir,
         count: dependency.count,
-        bytes: dependency.bytes
+        bytes: dependency.bytes,
+        vin: [],
+        vout: []
       };
-      if(dependency.vin) {
-        dependency.vin.forEach((out) => {
-          o.imports.push({
-            file: out.file,
-            ino: out.ino,
-            mtime: out.mtime
-          })
-        });
-      }
+      dependency.vin.forEach((vin) => {
+        o.vin.push({
+          file: vin.file,
+          ino: vin.ino,
+          mtime: vin.mtime
+        })
+      });
+      dependency.vout.forEach(vout => {
+        o.vout.push({
+          file: vout.file,
+          ino: vout.ino,
+          mtime: vout.mtime
+        })
+      });
       result.push(o);
     });
     return result;

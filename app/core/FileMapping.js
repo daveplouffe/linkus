@@ -6,7 +6,8 @@ let FileMapping = function (linkus) {
   }
 
   function applyMapping(files) {
-    if (!isFileMappingEnabled()) return;
+    if (!isFileMappingEnabled()) return [];
+    let mappedFiles = [];
     let N = files.length;
     let filesToMap = linkus.props.fileMapping.files;
     filesToMap.forEach(function (fileToMap) {
@@ -15,10 +16,12 @@ let FileMapping = function (linkus) {
         let file = files[i].file;
         if (Utils.endsWith(file, fileToMap.from)) {
           files[i].file = file.substring(0, file.length - fileToMap.from.length) + fileToMap.to;
+          mappedFiles.push(files[i]);
           break;
         }
       }
     });
+    return mappedFiles;
   }
 
   return {

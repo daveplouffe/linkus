@@ -3,6 +3,8 @@
  * Date: 04/02/2022
  */
 
+//var jsTokenType={operator:1,word:3,string:4,comment:6,syntax:9}
+
 const jsImportType = {
   includes: 1,
   imports: 2,
@@ -89,13 +91,29 @@ function jsImportAnalyser(jsToken) {
   }
 
   function requireStage() {
+    // accepted sequences:
+    //   - var name = require("path/to/file");
+    //   - var {name1,name2} = require("path/to/file");
+    //   - var name = require("path/to/file").something;
+    //
     let requireToken = {
-      index: curToken.index,
+      index: -1,
+      requireIndex: curToken.index,
+      requireLength: 0,
       file: '',
       length: 0,
       type: jsImportType.requires,
       isDefault: true
     };
+
+    // obtient le début de la déclaration du require
+    for(let n=i-1; n>=0; n--) {
+      if(tokenList[n].value === ';' || tokenList[n].value === '\n'){
+        requireToken.index = tokenList[n+1].index;
+        break;
+      }
+    }
+    if(requireToken.index===-1) requireToken.index = tokenList[0].index;
 
     for (i++; i < N; i++) {
       curToken = tokenList[i];
@@ -105,10 +123,19 @@ function jsImportAnalyser(jsToken) {
         break;
       }
     }
-    for (i++; i < N; i++) {
+
+    for (let n=i++; n < N; n++) { // pour le require complet
+      curToken = tokenList[n];
+      if (curToken.value === ';' || curToken.value==='\n') {
+        requireToken.length = curToken.index - requireToken.index+1;
+        break;
+      }
+    }
+
+    for (; i < N; i++) {
       curToken = tokenList[i];
       if (curToken.type === 9) {
-        requireToken.length = curToken.index - requireToken.index + 1;
+        requireToken.requireLength = curToken.index - requireToken.requireIndex+1;
         tokens.push(requireToken);
         tokenIn.push(requireToken);
         break;
@@ -116,6 +143,8 @@ function jsImportAnalyser(jsToken) {
     }
     if (tokenList[i + 1].value === '.')
       requireToken.isDefault = false;
+    else requireToken.requireLength++;
+
   }
 
   /**

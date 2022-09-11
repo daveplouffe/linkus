@@ -20,6 +20,7 @@
         basedir: __dirname,
         oldBuildCount: 5,
         builds : builds,
+        modularImport: false,
         // fileMapping: {
         //     enabled: isProd,
         //     files: [

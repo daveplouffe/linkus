@@ -5,7 +5,7 @@ const consoleRemover = {
    * @param {Linkus} linkus
    */
   execute(linkus) {
-    if (linkus.context.curFile.fileInfo.extension === '.js') {
+    if (linkus.context.curFile.info.extension === '.js') {
       linkus.context.curFile.content =
         linkus.context.curFile.content.replace(consoleRemover.regex, '');
     }

@@ -1,7 +1,5 @@
 let commands = {
   consoleRemover: require('../commands/console-remover'),
-  jsInclude: require('../commands/linkus-js-include'),
-  includeCssIntoJs: require('../commands/linkus-inlucde-css-into-js'),
   htAccessLoader: require('../commands/htaccess-loader'),
   copyFileLoader: require('../commands/copy-file-loader'),
   buildRemover: require('../commands/builds-remover-command'),
@@ -16,14 +14,15 @@ let defaultPlugins = function () {
   }
 
   function appendOnOutputDonePlugins(props) {
-    props.plugins.onOutputDone.unshift(commands.includeCssIntoJs);
+    props.plugins.onOutputDone.push(require('../commands/ClosureCompilerPlugin'))
+    props.plugins.onOutputDone.unshift(require('../commands/linkus-inlucde-css-into-js'));
   }
 
   function appendOnBeforWriteContentToOutputPlugins(props) {
     if (props.removeConsole) {
       props.plugins.onBeforeWriteContentToOutput.unshift(commands.consoleRemover);
     }
-    props.plugins.onBeforeWriteContentToOutput.unshift(commands.jsInclude);
+    //props.plugins.onBeforeWriteContentToOutput.unshift(...);
     //props.plugins.onBeforeWriteContentToOutput.unshift(commands.htAccessLoader);
     //props.plugins.onBeforeWriteContentToOutput.unshift(commands.copyFileLoader);
     //props.plugins.onBeforeWriteContentToOutput.push(commands.cacheFile); // must be last

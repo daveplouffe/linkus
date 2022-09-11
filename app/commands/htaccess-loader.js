@@ -10,11 +10,11 @@ const htAccessLoader = {
    * @param {basedir, content, extension, file} linkus.context.curFile
    */
   execute(linkus) {
-    if (linkus.context.curFile.fileInfo.extension === '.htaccess') {
-      let relativePath = Utils.getRelativePath(linkus.context.curFile.fileInfo.file, linkus.props.php.serverDocumentRoot);
+    if (linkus.context.curFile.info.extension === '.htaccess') {
+      let relativePath = Utils.getRelativePath(linkus.context.curFile.info.file, linkus.props.php.serverDocumentRoot);
       let dest = path.normalize(path.dirname(linkus.context.output) + relativePath);
       Utils.createFolders(path.dirname(dest));
-      cliUtils.copy(linkus.context.curFile.fileInfo.file, dest);
+      cliUtils.copy(linkus.context.curFile.info.file, dest);
       linkus.context.curFile.content = '';
     }
   },

@@ -1,6 +1,5 @@
 var resolve = require('resolve'); // npm install resolve --save-dev
 const {execSync} = require('child_process');
-const ClosureCompiler = require('google-closure-compiler').compiler;
 
 //region public
 module.exports = {

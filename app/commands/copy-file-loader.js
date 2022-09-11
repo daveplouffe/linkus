@@ -7,7 +7,7 @@ const copyFileLoader = {
   /**
    * @param {Linkus} linkus
    * @param {curFile, dependencyOrder, entry, output} linkus.context
-   * @param {fileInfo, content} linkus.context.curFile
+   * @param {info, content} linkus.context.curFile
    */
   execute(linkus) {
     // extension des fichiers qui seront copier.
@@ -20,11 +20,11 @@ const copyFileLoader = {
       '.jpg',
       '.jpeg'
     ];
-    if (ext.indexOf(linkus.context.curFile.fileInfo.extension) !== -1) {
-      let relativePath = Utils.getRelativePath(linkus.context.curFile.fileInfo.file, linkus.props.php.serverDocumentRoot);
+    if (ext.indexOf(linkus.context.curFile.info.extension) !== -1) {
+      let relativePath = Utils.getRelativePath(linkus.context.curFile.info.file, linkus.props.php.serverDocumentRoot);
       let dest = path.normalize(path.dirname(linkus.context.output) + relativePath);
       Utils.createFolders(path.dirname(dest));
-      cliUtils.copy(linkus.context.curFile.fileInfo.file, dest);
+      cliUtils.copy(linkus.context.curFile.info.file, dest);
       linkus.context.curFile.content = '';
     }
   },

@@ -108,7 +108,7 @@ Utils.inherit(OutputMaker, function () {
   }
 
   function formatFileContent(linkus, fileInfo) {
-    let curFile = {fileInfo, content:''};
+    let curFile = {info: fileInfo, content:''};
     let jsExports, jsDefaultExport;
 
     if(linkus.props.modularImport) {
@@ -137,11 +137,7 @@ Utils.inherit(OutputMaker, function () {
       }
 
     } else {
-      curFile.content = getStartDelimiter()
-        .replace('%n', '' + fileInfo.count)
-        .replace('%f', fileInfo.fileName)
-        .replace('%p', fileInfo.file)
-        .replace('%i', fileInfo.ino)
+      curFile.content = getStartDelimiter(fileInfo.count, fileInfo.ino, fileInfo.file, fileInfo.fileName)
         + curFile.content
         + getEndDelimiter();
     }
@@ -149,13 +145,16 @@ Utils.inherit(OutputMaker, function () {
     return curFile.content;
   }
 
-  function getStartDelimiter() {
-    return '\n\n//------------------------------------------------'
-      + '\n// #%n '
-      + '\n// ino: %i '
-      + '\n// filepath: %p'
-      + '\n//------------------------------------------------'
-      + '\n//region %f \n\n';
+  function getStartDelimiter(n,ino,filepath,filename) {
+    return `
+    
+    //------------------------------------------------
+    // #${n}
+    // ino: ${ino}
+    // filepath: ${filepath}
+    //region ${filename}
+    
+    `;
   }
 
   function getEndDelimiter() {
@@ -166,6 +165,7 @@ Utils.inherit(OutputMaker, function () {
     let fileContent = fs.readFileSync(fileInfo.file, 'utf8');
     let commentedContent = '';
     let cursor = 0, voffset = 0, vi;
+    let tokenOffset = 0;
 
     ///if(fileInfo.fileName =='index') {
     ///  let i = 0;
@@ -177,6 +177,8 @@ Utils.inherit(OutputMaker, function () {
         commentedContent += fileContent.substring(cursor,token.index)
           + '/*' + fileContent.substr(token.index, token.length) + '*/'
         cursor = token.index+token.length;
+        tokenOffset+=2;
+        token.index+=tokenOffset;
 
         vi = voffset + i;
         if(token.type===3) { // requires
@@ -191,6 +193,7 @@ Utils.inherit(OutputMaker, function () {
           }
         } else if(token.type === 4 || token.type===5) voffset--;
       }
+
     });
     commentedContent += fileContent.substring(cursor, fileContent.length);
     if(jsExports) {

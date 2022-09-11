@@ -15,11 +15,11 @@ const copyFolderLoader = {
     // NOTE: pour qu'un type de fichier soit trouvé dans un fichier javascript,
     // il faut modifier les extensions accepter par le link-resolver
 
-    if (fs.lstatSync(linkus.context.curFile.fileInfo.file).isDirectory()) {
-      let relativePath = Utils.getRelativePath(linkus.context.curFile.fileInfo.file, linkus.props.php.serverDocumentRoot);
+    if (fs.lstatSync(linkus.context.curFile.info.file).isDirectory()) {
+      let relativePath = Utils.getRelativePath(linkus.context.curFile.info.file, linkus.props.php.serverDocumentRoot);
       let dest = path.normalize(path.dirname(linkus.context.output) + relativePath);
       Utils.createFolders(path.dirname(dest));
-      cliUtils.copy(linkus.context.curFile.fileInfo.file, dest, {isRecursive: true});
+      cliUtils.copy(linkus.context.curFile.info.file, dest, {isRecursive: true});
     }
   },
 

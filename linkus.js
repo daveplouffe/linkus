@@ -66,7 +66,7 @@ Linkus.prototype.compile = function() {
 };
 
 /**
- * @param {object} props
+ * @param {{basedir: string, compile: {isDebugMode: boolean, enabled: number, compilationLevel: string}, sourcemap: boolean, builds: *[], nocache: boolean, php: {serverDocumentRoot: string}, oldBuildCount: number, isModular: boolean, fileMapping: {files: [{from: string, to: string}], enabled: number}, removeConsole: number}} props
  * @param {string} props.basedir
  * @param {number} props.oldBuildCount
  * @param {string} props.version
@@ -104,6 +104,7 @@ module.exports = Linkus;
 function startLinking(linkus) {
   if(linkus.props.version===null)
     linkus.props.version = Utils.getBuildNumber();
+
   console.log('');
   console.log('Linkus start on', new Date().toLocaleString());
   linkus.startTime = process.hrtime();
