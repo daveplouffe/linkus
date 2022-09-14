@@ -80,7 +80,6 @@ function processRequireToken(token, vinOffset) {
     cursor = token.requireIndex + token.requireLength;
     let fncName = '__linkus_' + curFileInfo.vin[vinOffset].fileName.replace(/[-. ]/g, '_') + '()';
     modifiedContent += fncName;
-    if(token.isDefault) modifiedContent+=';';
   } else {
     modifiedContent += curFileContent.substring(cursor, token.index);
     //modifiedContent += '/*' + curFileContent.substr(token.index, token.length) + '*/';

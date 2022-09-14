@@ -3,8 +3,6 @@
  * Date: 04/02/2022
  */
 
-//var jsTokenType={operator:1,word:3,string:4,comment:6,syntax:9}
-
 const jsImportType = {
   includes: 1,
   imports: 2,
@@ -95,7 +93,7 @@ function jsImportAnalyser(jsToken) {
     //   - var name = require("path/to/file");
     //   - var {name1,name2} = require("path/to/file");
     //   - var name = require("path/to/file").something;
-    //
+    //   - value: require("path/to/file"),
     let requireToken = {
       index: -1,
       requireIndex: curToken.index,
@@ -103,18 +101,18 @@ function jsImportAnalyser(jsToken) {
       file: '',
       length: 0,
       type: jsImportType.requires,
-      isDefault: true
     };
 
     // obtient le début de la déclaration du require
     for(let n=i-1; n>=0; n--) {
-      if(tokenList[n].value === ';' || tokenList[n].value === '\n'){
+      if([';','\n',','].indexOf(tokenList[n].value) !== -1){
         requireToken.index = tokenList[n+1].index;
         break;
       }
     }
     if(requireToken.index===-1) requireToken.index = tokenList[0].index;
 
+    // nom du fichier
     for (i++; i < N; i++) {
       curToken = tokenList[i];
       if (curToken.type === 4) {
@@ -126,24 +124,25 @@ function jsImportAnalyser(jsToken) {
 
     for (let n=i++; n < N; n++) { // pour le require complet
       curToken = tokenList[n];
-      if (curToken.value === ';' || curToken.value==='\n') {
-        requireToken.length = curToken.index - requireToken.index+1;
+      if (curToken.value === ';' || curToken.value==='\n' || curToken.value===',') {
+        requireToken.length = curToken.index - requireToken.index;
         break;
       }
     }
 
     for (; i < N; i++) {
       curToken = tokenList[i];
-      if (curToken.type === 9) {
-        requireToken.requireLength = curToken.index - requireToken.requireIndex+1;
+      if (curToken.type === 9 && curToken.value !== ')') {
+        requireToken.requireLength = curToken.index - requireToken.requireIndex;
+        //if(tokenList[i+1] && tokenList[i+1].value === '.') requireToken.requireLength++;
         tokens.push(requireToken);
         tokenIn.push(requireToken);
         break;
       }
     }
-    if (tokenList[i + 1].value === '.')
-      requireToken.isDefault = false;
-    else requireToken.requireLength++;
+    //if (tokenList[i + 1].value === '.')
+    //  requireToken.isDefault = false;
+    //else requireToken.requireLength++;
 
   }
 
