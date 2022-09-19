@@ -64,7 +64,7 @@ function processImportToken(token, vinOffset) {
   //modifiedContent += '/*' + curFileContent.substr(token.index, token.length) + '*/';
   cursor = token.index + token.length;
   if(!isModular) return;
-  let fncName = '__linkus_' + curFileInfo.vin[vinOffset].fileName.replace(/[-. ]/g, '_') + '();';
+  let fncName = curFileInfo.vin[vinOffset].fncName + '();';
   if(token.variables.length) {
     if (token.hasDefault === false || token.variables.length > 1 || curFileInfo.vin[vinOffset].analyse.tokenOut.length > 1) {
       modifiedContent += 'const {' + token.variables.join(',') + '} = ' + fncName;
@@ -78,8 +78,7 @@ function processRequireToken(token, vinOffset) {
     modifiedContent += curFileContent.substring(cursor, token.requireIndex);
     //modifiedContent += '/*' + curFileContent.substr(token.requireIndex, token.requireLength) + '*/';
     cursor = token.requireIndex + token.requireLength;
-    let fncName = '__linkus_' + curFileInfo.vin[vinOffset].fileName.replace(/[-. ]/g, '_') + '()';
-    modifiedContent += fncName;
+    modifiedContent += curFileInfo.vin[vinOffset].fncName + '()';
   } else {
     modifiedContent += curFileContent.substring(cursor, token.index);
     //modifiedContent += '/*' + curFileContent.substr(token.index, token.length) + '*/';
@@ -120,7 +119,7 @@ function readContent(linkus, fileInfo) {
   processExports();
 
   if(isModular && exportList.length>0) {
-    let fncName = 'function __linkus_'+fileInfo.fileName.replace(/[-. ]/g,'_') + '() {\n';
+    let fncName = 'function ' + fileInfo.fncName + '() {\n';
     modifiedContent = fncName + modifiedContent + '\n}';
   }
 

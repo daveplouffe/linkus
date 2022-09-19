@@ -168,6 +168,7 @@ function getDependencyObject(absolutePathFile, stats) {
     container[ino] = {
       fileName: fileParts.name,
       file: absolutePathFile,
+      fncName: '__linkus_' + fileParts.name.replace(/[-. ]/g,'_'),//+ '_'+stats.ino,
       extension: fileParts.ext,
       dir: fileParts.dir,
       mtime: stats.mtime,
