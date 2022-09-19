@@ -6,7 +6,7 @@ let DependencyCached = function (linkus) {
 
   let cachedir = linkus.context.outputParts.path + '/linkus_cache/';
   let dependencyCachedFile = linkus.context.outputParts.fileName + '_cache.json';
-  Utils.createFolders(cachedir);
+  if(linkus.props.nocache) Utils.createFolders(cachedir);
   let loaded = [];
 
   loadCache();
