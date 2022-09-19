@@ -1,5 +1,4 @@
 const eventbus = require('../../helpers/eventbus');
-const OutputMaker = require('../../core/output-maker');
 const LinkusEvent = require('../../core/linkus-event');
 const resolve = require('resolve');
 const fs = require('fs');
@@ -8,15 +7,7 @@ eventbus.on(LinkusEvent.onMakeOutput, onMakeOutput);
 
 function onMakeOutput(linkus) {
   if (linkus.context.entry.extension === '.js' && linkus.context.state !== 'NO_CHANGE') {
-
     makeOutputOnly(linkus);
-
-    //let outputMaker = OutputMaker.create();
-    //outputMaker.makeOutput({
-    //  linkus,
-    //  dependencyOrder: linkus.context.dependencyOrder,
-    //  output: linkus.context.output
-    //});
     linkus.cached.saveDependencies(linkus.context.dependencyOrder);
   }
 }
@@ -37,20 +28,23 @@ let exportList;
 let isDefaultExport;
 let nbOfFiles;
 let isModular = false;
+const linkusModuleVariableName = '__linkus_module';
+let linkusModuleCode = '';
 
 function makeOutputOnly(linkus) {
   let dependencyOrder = linkus.context.dependencyOrder;
   let content, buffer = '';
   isModular = linkus.props.modularImport;
   nbOfFiles = dependencyOrder.length-1;
+  linkusModuleCode = '\nconst '+linkusModuleVariableName+'={};'
   for (let i = 0; i <= nbOfFiles; i++) {
     curFileInfo = dependencyOrder[i];
-    curFileInfo.count = i;
     content = readContent(linkus, curFileInfo);
     linkus.context.curFile = {info: curFileInfo, content};
     eventbus.emit(LinkusEvent.onBeforeWriteContentToOutput, linkus);
     buffer += content;
   }
+  buffer = linkusModuleCode + buffer;
   fs.writeFileSync(linkus.context.output, buffer, 'utf8');
 }
 
@@ -64,7 +58,7 @@ function processImportToken(token, vinOffset) {
   //modifiedContent += '/*' + curFileContent.substr(token.index, token.length) + '*/';
   cursor = token.index + token.length;
   if(!isModular) return;
-  let fncName = curFileInfo.vin[vinOffset].fncName + '();';
+  let fncName = linkusModuleVariableName+'.' + curFileInfo.vin[vinOffset].fncName + ';';
   if(token.variables.length) {
     if (token.hasDefault === false || token.variables.length > 1 || curFileInfo.vin[vinOffset].analyse.tokenOut.length > 1) {
       modifiedContent += 'const {' + token.variables.join(',') + '} = ' + fncName;
@@ -78,7 +72,7 @@ function processRequireToken(token, vinOffset) {
     modifiedContent += curFileContent.substring(cursor, token.requireIndex);
     //modifiedContent += '/*' + curFileContent.substr(token.requireIndex, token.requireLength) + '*/';
     cursor = token.requireIndex + token.requireLength;
-    modifiedContent += curFileInfo.vin[vinOffset].fncName + '()';
+    modifiedContent += linkusModuleVariableName+'.' + curFileInfo.vin[vinOffset].fncName;
   } else {
     modifiedContent += curFileContent.substring(cursor, token.index);
     //modifiedContent += '/*' + curFileContent.substr(token.index, token.length) + '*/';
@@ -121,6 +115,7 @@ function readContent(linkus, fileInfo) {
   if(isModular && exportList.length>0) {
     let fncName = 'function ' + fileInfo.fncName + '() {\n';
     modifiedContent = fncName + modifiedContent + '\n}';
+    linkusModuleCode += '\n'+linkusModuleVariableName+'.'+fileInfo.fncName+ '=' +fileInfo.fncName + '()';
   }
 
   return getStartDelimiter(fileInfo.count, fileInfo.ino, fileInfo.file, fileInfo.fileName)

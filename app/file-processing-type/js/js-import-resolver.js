@@ -147,7 +147,10 @@ function resolveOrder(resolvedEntryFile) {
 
   let ordered = [];
   let i = reverseOrder.length;
+  let imax = i-1;
   while(i-- >0) {
+    reverseOrder[i].count = imax-i;
+    reverseOrder[i].fncName = '_'+(imax-i)+reverseOrder[i].fncName;
     delete reverseOrder[i].in;
     ordered.push(reverseOrder[i]);
   }
@@ -168,8 +171,9 @@ function getDependencyObject(absolutePathFile, stats) {
     container[ino] = {
       fileName: fileParts.name,
       file: absolutePathFile,
-      fncName: '__linkus_' + fileParts.name.replace(/[-. ]/g,'_'),//+ '_'+stats.ino,
+      fncName: '_linkus_' + fileParts.name.replace(/[-. ]/g,'_'),//+ '_'+stats.ino,
       extension: fileParts.ext,
+      count: 0,
       dir: fileParts.dir,
       mtime: stats.mtime,
       ino: ino,
