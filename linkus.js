@@ -115,7 +115,7 @@ function startLinking(linkus) {
     context.output = normalizeOutput(context.output, linkus.props.basedir);
     context.entry = normalizeInput(context.entry, linkus.props.basedir);
     context.outputParts = Utils.breakFullPathFile(context.output);
-    context.outputParts.fileNameWithVersion = context.outputParts.fileName + '.' + linkus.props.version;
+    context.outputParts.fileNameWithVersion = context.outputParts.fileName + (linkus.props.version ? '.' + linkus.props.version:'');
     context.output = context.outputParts.path + context.outputParts.fileNameWithVersion + context.outputParts.extension;
     context.outputParts.file = context.output;
     context.version = linkus.props.version;
